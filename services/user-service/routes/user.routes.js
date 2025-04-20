@@ -1,0 +1,10 @@
+const express = require("express");
+const routeAPI=express.Router();
+const {getuser,postuser, deleteduser, updateuser, FindIDuser, findUser}=require("../controllers/user.controller");
+routeAPI.get('/',getuser);
+routeAPI.post('/',postuser);
+routeAPI.delete('/:id', deleteduser);
+routeAPI.put('/:id',updateuser);
+routeAPI.get('/findID/:id', FindIDuser);
+routeAPI.get('/find', findUser);
+module.exports=routeAPI;

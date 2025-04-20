@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  user-service:
+    container_name: user-service
+    build:
+      context: .
+      dockerfile: docker/user-service.Dockerfile
+    ports:
+      - "3003:3003"
+
+  topic-service:
+    container_name: topic-service
+    build:
+      context: .
+      dockerfile: docker/topic-service.Dockerfile
+    ports:
+      - "3004:3004"
+
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: .
+      dockerfile: docker/api-Gateway.Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - user-service
+      - topic-service
+      - interaction-service
+      - submission-service
+      - topranking-service
+
+  interaction-service:
+    container_name: interaction-service
+    build:
+      context: .
+      dockerfile: docker/interaction-service.Dockerfile
+    ports:
+      - "3006:3006"
+
+  submission-service:
+    container_name: submission-service
+    build:
+      context: .
+      dockerfile: docker/submission-service.Dockerfile
+    ports:
+      - "3005:3005"
+
+  topranking-service:
+    container_name: topranking-service
+    build:
+      context: .
+      dockerfile: docker/topranking-service.Dockerfile
+    ports:
+      - "3007:3007"
+  auth-service:
+    container_name: auth-service
+    build:
+      context: .
+      dockerfile: docker/auth-service.Dockerfile
+    ports:
+      - "3008:3008"
+  media-service:
+    container_name: media-service
+    build:
+      context: .
+      dockerfile: docker/media-service.Dockerfile
+    ports:
+      - "5000:5000"
