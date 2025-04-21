@@ -1,4 +1,3 @@
-// services/auth.service.js
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");

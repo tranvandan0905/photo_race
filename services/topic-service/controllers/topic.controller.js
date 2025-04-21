@@ -71,13 +71,21 @@ module.exports = {
           const  title  = req.query;
           const topic = await handeFindTopic( title );
           return res.status(200).json({ errorCode: 0, data: topic });
-        } catch (err) {
+        } catch (error) {
           return res.status(400).json({
              errorCode: 1,
-              message: err.message  || "Có lỗi xảy ra!",
+              message: error.message  || "Có lỗi xảy ra!",
 
           });
         }
+      },
+      findToponeTopic: async(req,res)=>{
+        try {
+            
+        } catch (error) {
+            
+        }
       }
+    
 
 }

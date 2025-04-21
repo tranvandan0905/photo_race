@@ -4,11 +4,8 @@ const app=express();
 const connection=require('./config/db');
 const post=process.env.POST;
 app.use(express.json());
-// const routeAPI=require("./routes/interaction.routes");
-// app.use('/api/interaction',routeAPI);
-app.get('/',(req,res)=>{
-    res.send("oh");
-});
+const routeAPI=require("./routes/interaction.routes");
+app.use('/api/interaction',routeAPI);
 (async () => {
     try {
         await connection();

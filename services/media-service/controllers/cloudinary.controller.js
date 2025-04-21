@@ -5,7 +5,6 @@ const postmidia = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ errorCode: 1, message: 'Chưa chọn file!' });
     }
-
     const result = await uploadToCloudinary(req.file.buffer);
     return res.status(200).json({ errorCode: 0, data: result });
   } catch (error) {

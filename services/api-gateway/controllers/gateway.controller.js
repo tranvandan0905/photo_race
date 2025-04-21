@@ -48,6 +48,22 @@ const getopic = async (req, res) => {
 const postsubmission = async (req, res) => {
   try {
     const data = req.body;
+    const form = new FormData();
+        form.append("file", image.buffer, image.originalname); 
+    
+        const response = await axios.post(
+            'http://media-service:5000/api/media/upload', 
+            form,
+            {
+                headers: form.getHeaders(),
+            }
+        );
+    
+        const imageUrl = response.data?.data?.secure_url;
+    
+        if (!imageUrl || !userID) {
+            throw new Error("Lấy ảnh hoặc user thất bại!");
+        }
     const submission = await axios.post("http://submission-service:3005/api/submission", data, {
       headers: {
         "x-user-id": req.user?.id,
@@ -82,7 +98,7 @@ const login = async (req, res) => {
   } catch (error) {
     return res.status(401).json({
       message: "Đăng nhập thất bại!",
-      error: error.response?.data?.message || error.message
+      error: message.message
     });
   }
 };

@@ -21,9 +21,7 @@ module.exports = {
     },
      postsubmission : async (req, res) => {
         try {
-          const userID = req.headers["x-user-id"];
-          console.log("SUBMISSION: Nhận x-user-id:", userID);
-      
+          const userID = req.headers["x-user-id"];    
           return res.status(200).json({
             errorCode: 0,
             data: userID,
@@ -31,7 +29,7 @@ module.exports = {
           });
       
         } catch (error) {
-          console.error("Lỗi submission:", error.message);
+          
           return res.status(400).json({
             errorCode: 1,
             data: [],

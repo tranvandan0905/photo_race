@@ -10,7 +10,6 @@ const authenticateToken = (req, res, next) => {
 
     jwt.verify(token,"your_secret_key_here", (err, user) => {
         if (err) return res.status(403).json({ message: "Token không hợp lệ!" });
-
         req.user = user;
         next();
     });

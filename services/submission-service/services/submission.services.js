@@ -9,42 +9,22 @@ const handeGetSubmission = async () => {
     return data;
 };
 
-// const handlePostSubmission = async (data, image, userID) => {
-//     const { topic_id, title } = data;
+const handlePostSubmission = async (title, image, userID) => {
+    if (!topic_id || !title || !image) {
+        throw new Error("Vui lòng điền đầy đủ thông tin!");
+    }
 
-//     if (!topic_id || !title || !image) {
-//         throw new Error("Vui lòng điền đầy đủ thông tin!");
-//     }
+    const submission = await Submission.create({
+        user_id: userID,
+        topic_id: topic_id,
+        title: title,
+        image: imageUrl,
+    });
 
-//     // Tạo form-data để gửi ảnh tới media-service
-//     const form = new FormData();
-//     form.append("file", image.buffer, image.originalname); // "file" phải đúng với upload.single("file")
+    if (!submission) {
+        throw new Error("Thêm không thành công!");
+    }
 
-//     const response = await axios.post(
-//         'http://media-service:5000/api/media/upload', 
-//         form,
-//         {
-//             headers: form.getHeaders(),
-//         }
-//     );
-
-//     const imageUrl = response.data?.data?.secure_url;
-
-//     if (!imageUrl || !userID) {
-//         throw new Error("Lấy ảnh hoặc user thất bại!");
-//     }
-
-//     const submission = await submissionModel.create({
-//         user_id: userID,
-//         topic_id: topic_id,
-//         title: title,
-//         image: imageUrl,
-//     });
-
-//     if (!submission) {
-//         throw new Error("Thêm không thành công!");
-//     }
-
-//     return submission;
-// };
-module.exports={handeGetSubmission};
+    return submission;
+};
+module.exports={handeGetSubmission,handlePostSubmission};
