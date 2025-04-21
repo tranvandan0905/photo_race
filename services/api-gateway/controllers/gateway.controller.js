@@ -1,4 +1,5 @@
 const axios = require('axios');
+const FormData = require('form-data');
 const getuser = async (req, res) => {
   try {
     const response = await axios.get('http://user-service:3003/api/user');
@@ -45,42 +46,55 @@ const getopic = async (req, res) => {
     });
   }
 };
+
 const postsubmission = async (req, res) => {
   try {
-    const data = req.body;
+    const { topic_id, title } = req.body;
+    const user_id = req.user.id;
+    const image = req.file;
+
+    if (!image) {
+      throw new Error("Không có ảnh nào được gửi.");
+    }
+
+    // Tạo FormData
     const form = new FormData();
-        form.append("file", image.buffer, image.originalname); 
-    
-        const response = await axios.post(
-            'http://media-service:5000/api/media/upload', 
-            form,
-            {
-                headers: form.getHeaders(),
-            }
-        );
-    
-        const imageUrl = response.data?.data?.secure_url;
-    
-        if (!imageUrl || !userID) {
-            throw new Error("Lấy ảnh hoặc user thất bại!");
-        }
-    const submission = await axios.post("http://submission-service:3005/api/submission", data, {
-      headers: {
-        "x-user-id": req.user?.id,
-      }
-    });
+    // Dùng form.append để thêm buffer
+    form.append("file", image.buffer, { filename: image.originalname, contentType: image.mimetype });
+
+    const headers = form.getHeaders();
+
+    const response = await axios.post(
+      'http://media-service:5000/api/media/upload',
+      form,
+      { headers: headers }
+    );
+
+    const imageUrl = response.data?.data?.secure_url;
+    if (!imageUrl) {
+      throw new Error("Lấy ảnh thất bại!");
+    }
+
+    const submission = await axios.post(
+      "http://submission-service:3005/api/submission",
+      { user_id, topic_id, title, imageUrl }
+    );
 
     return res.status(200).json({
-      data: submission.data
+      errorCode: 0,
+      data: submission.data,
     });
 
   } catch (error) {
     return res.status(400).json({
       errorCode: 1,
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+      message: error?.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
     });
   }
 };
+
+
+
 const login = async (req, res) => {
   try {
     const { name, password } = req.body;
@@ -90,7 +104,7 @@ const login = async (req, res) => {
       password
     });
 
-    res.status(200).json({
+   return  res.status(200).json({
       message: "Đăng nhập thành công!",
       token: response.data.token
     });
