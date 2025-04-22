@@ -1,6 +1,5 @@
 
 const Submission = require("../models/submission.model");
-const axios = require('axios');
 const handeGetSubmission = async () => {
     const data = await Submission.find({});
     if (!data) {
@@ -9,11 +8,8 @@ const handeGetSubmission = async () => {
     return data;
 };
 
-const handlePostSubmission = async (user_id, topic_id, title, imageUrl) => {
-    if (!user_id || !topic_id || !title || !imageUrl) {
-        throw new Error("Vui lòng điền đầy đủ thông tin!");
-    }
-
+const handlePostSubmission = async (user_id, topic_id, title, imageUrl ) => {
+    
     const submission = await Submission.create({
         user_id: user_id,
         topic_id: topic_id,

@@ -49,17 +49,25 @@ const getopic = async (req, res) => {
 
 const postsubmission = async (req, res) => {
   try {
-    const { topic_id, title } = req.body;
+    const title = req.body.title;
     const user_id = req.user.id;
     const image = req.file;
-
+    if (!title) {
+      throw new Error("Vui lòng điền đầy đủ thông tin!");
+    }
     if (!image) {
       throw new Error("Không có ảnh nào được gửi.");
     }
-
-    // Tạo FormData
+    if (!user_id) {
+      throw new Error("Lấy ID không thành công.");
+    }
+    const votetopic = await axios.get(`http://interaction-service:3006/api/interaction/votetopic/findvote/${user_id}`);
+    if (!votetopic) {
+      const err = votetopic.data.message;
+      throw new Error(err);
+    }
+    const topic_id = votetopic.data.data._id;
     const form = new FormData();
-    // Dùng form.append để thêm buffer
     form.append("file", image.buffer, { filename: image.originalname, contentType: image.mimetype });
 
     const headers = form.getHeaders();
@@ -104,7 +112,7 @@ const login = async (req, res) => {
       password
     });
 
-   return  res.status(200).json({
+    return res.status(200).json({
       message: "Đăng nhập thành công!",
       token: response.data.token
     });
@@ -118,4 +126,4 @@ const login = async (req, res) => {
 };
 
 
-module.exports = { getuser, getopic, findUser, postsubmission,login };
+module.exports = { getuser, getopic, findUser, postsubmission, login };

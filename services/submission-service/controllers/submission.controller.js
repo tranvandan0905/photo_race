@@ -21,8 +21,8 @@ module.exports = {
     },
      postsubmission : async (req, res) => {
         try {
-        const {user_id, topic_id, title, imageUrl}=req.body;
-        const data=await handlePostSubmission(user_id, topic_id, title, imageUrl)
+        const {user_id, topic_id, title, imageUrl }=req.body;
+        const data=await handlePostSubmission(user_id, topic_id, title, imageUrl )
           return res.status(200).json({
             errorCode: 0,
             data: data,
