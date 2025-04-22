@@ -1,5 +1,5 @@
-const comment = require('../models/comment.model');
-const { handeGetcomment, handePostcomment } = require('../services/comment.services');
+
+const { handeGetcomment, handePostcomment, handePatchcomment } = require('../services/comment.services');
 module.exports = {
     getcomment: async (req, res) => {
         try {

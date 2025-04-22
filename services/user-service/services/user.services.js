@@ -78,14 +78,34 @@ const handeFindUser = async (name) => {
   if (!name) {
     throw new Error("Thiếu name người dùng!");
   }
-const user = await users.findOne({name});
+  const user = await users.findOne({ name });
   if (!user) throw new Error('Không tìm thấy user theo tên');
   return user;
+}
+const handePatchVoteXU = async (_id) => {
+  if (!_id) {
+    throw new Error("Thiếu ID");
+  }
+  const finduser = await handleFindIDUser(_id);
+  const newXu = finduser.xu - 5;
+  if (newXu < 0) {
+    throw new Error("Không đủ XU để vote!");
+  }
+
+  const result = await users.updateOne(
+    { _id },
+    { $set: { xu: newXu } }
+  );
+
+  if (result.matchedCount === 0) {
+    throw new Error("Không tìm thấy user để cập nhật!");
+  }
+
+  return result;
 }
 
 
 
-
 module.exports = {
-  handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser
+  handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU
 };
