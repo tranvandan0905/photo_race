@@ -1,4 +1,4 @@
- const { handeGetSubmission, handlePostSubmission } = require("../services/submission.services");
+ const { handeGetSubmission, handlePostSubmission,handeFindSubmission_Topic, handeDeleteSubmission } = require("../services/submission.services");
 
 module.exports = {
     getsubmission: async (req, res) => {
@@ -37,6 +37,47 @@ module.exports = {
             message: error.message || 'Có lỗi xảy ra!',
           });
         }
-      }
-      
+      },
+      FindsubmissionTopic: async (req, res) => {
+        let check=false;
+        try {
+          const topic_id =req.params.topic_id;
+            const data = await handeFindSubmission_Topic(topic_id);
+            if(!data)
+            {
+              check=true;
+            }
+            return res.status(200).json({
+                errorCode: 0,
+               check: check,
+               message:"Bạn chưa có bài đăng cho chủ đề!"
+            });
+
+        } catch (error) {
+            return res.status(400).json({
+                errorCode: 1,
+                check: check,
+                message: "Bạn đã có bài đăng cho chủ đề này!",
+            })
+        } 
+    },
+    deletesubmission: async (req, res) => {
+      try {
+        const _id = req.params.id;
+        const result = await handeDeleteSubmission(_id);
+            return res.status(200).json({
+                errorCode: 0,
+                data: result,
+                message: "Xóa Submission thành công!"
+            })
+
+        } catch (error) {
+            return res.status(400).json({
+                errorCode: 1,
+                message: error.message || 'Có lỗi xảy ra!',
+            })
+        }
+
+  },
+
 }

@@ -79,13 +79,4 @@ module.exports = {
           });
         }
       },
-      findToponeTopic: async(req,res)=>{
-        try {
-            
-        } catch (error) {
-            
-        }
-      }
-    
-
 }

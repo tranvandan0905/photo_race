@@ -67,6 +67,11 @@ const postsubmission = async (req, res) => {
       throw new Error(err);
     }
     const topic_id = votetopic.data.data._id;
+    const checktopic = await axios.get(`http://submission-service:3005/api/submission/findIDTopic/${topic_id}`);
+    if (checktopic.data.check == false) {
+      const err = votetopic.data.message;
+      throw new Error(err);
+    }
     const form = new FormData();
     form.append("file", image.buffer, { filename: image.originalname, contentType: image.mimetype });
 
