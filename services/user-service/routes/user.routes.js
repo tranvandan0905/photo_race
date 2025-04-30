@@ -7,5 +7,5 @@ routeAPI.delete('/:id', deleteduser);
 routeAPI.put('/:id',updateuser);
 routeAPI.get('/findID/:id', FindIDuser);
 routeAPI.get('/find', findUser);
-routeAPI.patch('vote/:id', PatchVoteXU);
+routeAPI.patch('/vote/:id', PatchVoteXU);
 module.exports=routeAPI;

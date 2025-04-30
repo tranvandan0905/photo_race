@@ -1,11 +1,11 @@
 const express = require("express");
-const { findvoteTopicUser, postvotetopic } = require("../controllers/voteTopic.controller");
+const { findcheckvoteTopicUser, postVoteTopic } = require("../controllers/voteTopic.controller");
 const { getcomment, deletecomment,postcomment, patchcomment} = require("../controllers/comment.controller");
 const { findlike } = require("../controllers/like.controller");
 const routeAPI=express.Router();
 // vote topic 
-routeAPI.get('/votetopic/findvote/:id',findvoteTopicUser);
-routeAPI.post('/votetopic',postvotetopic);
+routeAPI.get('/votetopic/findvote/:id',findcheckvoteTopicUser);
+routeAPI.post('/votetopic',postVoteTopic);
 // comment 
 routeAPI.get('/submission/:id/comments', getcomment);
 routeAPI.delete('/comment/:id',deletecomment);

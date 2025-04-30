@@ -6,13 +6,11 @@ module.exports = {
             const { check } = req.query;
             const data = await handGetUser(check);
             return res.status(200).json({
-                errorCode: 0,
                 data: data,
                 message: "Lấy user thành công!"
             });
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 message: error.message || 'Có lỗi xảy ra!',
             });
         }
@@ -21,11 +19,8 @@ module.exports = {
 
         try {
             const { email, name, password } = req.body;
-            const userId = req.user._id;
-            console.log("okok ", userId);
             const user = await handlePostUser({ email, name, password });
-            return res.status(200).json({
-                errorCode: 0,
+            return res.status(201).json({
                 data: user,
                 message: "Thêm thành công!"
             })
@@ -33,7 +28,6 @@ module.exports = {
         } catch (error) {
 
             return res.status(400).json({
-                errorCode: 1,
                 message: error.message || 'Có lỗi xảy ra!',
             });
         }
@@ -42,15 +36,13 @@ module.exports = {
         try {
             const _id = req.params.id;
             const result = await handleDeleteUser(_id);
-            return res.status(200).json({
-                errorCode: 0,
+            return res.status(204).json({
                 data: result,
                 message: "Xóa user thành công!"
             })
 
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 message: error.message || 'Có lỗi xảy ra!',
             })
         }
@@ -61,13 +53,11 @@ module.exports = {
             const data = req.body;
             const result = await handleUpdateUser(data, _id);
             return res.status(200).json({
-                errorCode: 0,
                 data: result,
                 message: "Edit thành công!",
             })
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 message: error.message || 'Có lỗi xảy ra!',
             })
         }
@@ -77,13 +67,11 @@ module.exports = {
             const _id = req.params.id;
             const result = await handleFindIDUser(_id);
             return res.status(200).json({
-                errorCode: 0,
                 data: result,
                 message: "Tìm kiếm thành công!",
             });
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 message: error.message || "Có lỗi xảy ra!",
             });
         }
@@ -93,12 +81,10 @@ module.exports = {
             const { name } = req.query;
             const user = await handeFindUser(name);
             return res.status(200).json({
-                errorCode: 0,
                 data: user
             });
         } catch (err) {
             return res.status(400).json({
-                errorCode: 1,
                 message: err.message || "Có lỗi xảy ra!",
             });
         }
@@ -108,13 +94,11 @@ module.exports = {
             const _id = req.params.id;
             const xu = await handePatchVoteXU(_id);
             return res.status(200).json({
-                errorCode: 0,
                 check: true,
                 message: "Đã thanh toán xu thành công!"
             });
         } catch (err) {
             return res.status(400).json({
-                errorCode: 1,
                 check: false,
                 message: err.message || "Có lỗi xảy ra!",
             });

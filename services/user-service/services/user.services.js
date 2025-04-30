@@ -40,27 +40,31 @@ const handleDeleteUser = async (_id) => {
   return user;
 };
 const handleUpdateUser = async (data, _id) => {
-  const { name, password, xu, role, check_email } = data;
+  const { name, password, xu, role, check_email, image } = data;
+
   if (!_id) {
     throw new Error("Thiếu ID người dùng!");
   }
+
   const userid = await users.findOne({ _id });
   if (!userid) {
     throw new Error("User không tồn tại!");
   }
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const result = await users.updateOne(
-    { _id },
-    {
-      $set: {
-        name: name || userid.name,
-        password: hashedPassword || userid.password,
-        xu: xu !== undefined ? xu : userid.xu,
-        role: role || userid.role,
-        check_email: check_email !== undefined ? check_email : userid.check_email,
-      },
-    }
-  );
+
+  const updateData = {
+    name: name || userid.name,
+    xu: xu !== undefined ? xu : userid.xu,
+    role: role || userid.role,
+    check_email: check_email !== undefined ? check_email : userid.check_email,
+    image: image || userid.image,
+  };
+
+  if (password) {
+    updateData.password = await bcrypt.hash(password, 10);
+  }
+
+  const result = await users.updateOne({ _id }, { $set: updateData });
+
   return result;
 };
 const handleFindIDUser = async (_id) => {

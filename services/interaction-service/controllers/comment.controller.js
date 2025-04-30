@@ -6,7 +6,6 @@ module.exports = {
             const submission_id = req.params.id;
             const data = await handeGetcomment(submission_id);
             return res.status(200).json({
-                errorCode: 0,
                 data: data,
                 message: "Lấy comment thành công!",
             });
@@ -23,13 +22,11 @@ module.exports = {
             const {submission_id,content,user_id} =req.body;
             const data = await handePostcomment(submission_id,content,user_id);
             return res.status(200).json({
-                errorCode: 0,
                 data: data,
                 message: "Thêm comment thành công!",
             });
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 data: [],
                 message: error.message || 'Có lỗi xảy ra!',
             });
@@ -40,13 +37,11 @@ module.exports = {
             const _id = req.params.id;
             const data = await handeDeletecomment(_id);
             return res.status(200).json({
-                errorCode: 0,
                 data: data,
                 message: "Xóa comment thành công!",
             });
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 data: [],
                 message: error.message || 'Có lỗi xảy ra!',
             });
@@ -60,14 +55,12 @@ module.exports = {
     
             const result = await handePatchcomment(content,_id);
             return res.status(200).json({
-                errorCode: 0,
                 data: result,
                 message: "Cập nhật comment thành công!",
             });
     
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 data: [],
                 message: error.message || 'Có lỗi xảy ra!',
             });

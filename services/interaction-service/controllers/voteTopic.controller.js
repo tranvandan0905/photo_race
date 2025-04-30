@@ -1,7 +1,7 @@
 const voteTopic = require('../models/voteTopic.model');
 const axios = require('axios');
 module.exports = {
-    findvoteTopicUser: async (req, res) => {
+    findcheckvoteTopicUser: async (req, res) => {
         try {
             const userID = req.params.id;
 
@@ -30,13 +30,13 @@ module.exports = {
             }
 
             return res.status(200).json({
-                errorCode: 0,
+                check:true,
                 data: lastItem,
                 message: "Đạt điều kiện đăng bài!",
             });
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
+                check:false,
                 data: [],
                 message: error.message || 'Có lỗi xảy ra!',
             });
@@ -44,40 +44,57 @@ module.exports = {
     },
     postVoteTopic: async (req, res) => {
         try {
+            const check=false;
             const { topic_id, user_id } = req.body;
             if (!topic_id || !user_id) {
                 throw new Error("Thiếu thông tin!");
             }
             const result = await voteTopic.findOne({ topic_id, user_id });
             if (result) {
-                throw new Error("Bạn đã VoteTopic!");
+                check=true;
             }
-            const data = await voteTopic.create({ topic_id, user_id });
-            if (data) {
-                let response;
-                try {
-                    response = await axios.patch(`http://user-service:3003/api/user/vote/${user_id}`);
-                } catch (err) {
-                    throw new Error("Có lỗi xảy ra khi gọi API trừ xu!");
-                }
-                if (response && response.data && response.data.check === false) {
-                    throw new Error(response.data.message);
-                }
+            let response;
+            try {
+                response = await axios.patch(`http://user-service:3003/api/user/vote/${user_id}`);
+            } catch (err) {
+                throw new Error("Có lỗi xảy ra khi gọi API trừ xu!");
+            }
+            if (response && response.data && response.data.check === false) {
+                throw new Error(response.data.message);
+            }
+            const data=[];
+            if(response.data.check==true)
+            {
+             data = await voteTopic.create({ topic_id, user_id });
             }
     
             return res.status(200).json({
-                errorCode: 0,
                 data: data,
-                message: "Thêm thành công!",
+                message: "Ban vote topic thành công!",
             });
     
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 data: [],
                 message: error.message || "Có lỗi xảy ra khi gọi API!",
             });
         }
-    }    
+    },
+    deleteVoteTopic: async(req,res)=>{
+        try {
+            const { topic_id, user_id } = req.query;
+            const data = await handeDeleteVoteTopic(topic_id, user_id);
+            return res.status(200).json({
+                data: data,
+                message: "Xóa VoteTopic thành công!",
+            });
+        } catch (error) {
+            return res.status(400).json({
+                data: [],
+                message: error.message || 'Có lỗi xảy ra!',
+            });
+        }
+    }
+
 
 }
