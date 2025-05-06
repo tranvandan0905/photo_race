@@ -4,5 +4,5 @@ const routeAPI=express.Router();
 routeAPI.get("/",getsubmission);
 routeAPI.post("/",postsubmission);
 routeAPI.delete('/:id',deletesubmission);
-routeAPI.get('/findIDTopic/:id',FindsubmissionTopic);
+routeAPI.get('/findIDTopic/:topic_id/:user_id',FindsubmissionTopic);
 module.exports=routeAPI; 

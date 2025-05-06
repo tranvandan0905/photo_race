@@ -2,8 +2,8 @@ const { handelogin } = require("../services/auth.service");
 
 const loginPages = async (req, res) => {
     try {
-        const { name, password } = req.body;
-        const result = await handelogin(name, password); 
+        const { email, password } = req.body;
+        const result = await handelogin(email, password); 
         res.json({ 
             message: "Đăng nhập thành công!", 
             token: result.token 

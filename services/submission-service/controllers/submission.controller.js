@@ -3,7 +3,8 @@
 module.exports = {
     getsubmission: async (req, res) => {
         try {
-            const data = await handeGetSubmission();
+          const user_id = req.query.user_id;
+            const data = await handeGetSubmission(user_id);
             return res.status(200).json({
                 errorCode: 0,
                 data: data,
@@ -39,28 +40,28 @@ module.exports = {
         }
       },
       FindsubmissionTopic: async (req, res) => {
-        let check=false;
         try {
-          const topic_id =req.params.topic_id;
-            const data = await handeFindSubmission_Topic(topic_id);
-            if(!data)
-            {
-              check=true;
-            }
-            return res.status(200).json({
-                errorCode: 0,
-               check: check,
-               message:"Bạn chưa có bài đăng cho chủ đề!"
-            });
-
+          const { topic_id, user_id } = req.params;
+          const data = await handeFindSubmission_Topic(topic_id, user_id);
+      
+          const hasSubmitted = data.length > 0;
+      
+          return res.status(200).json({
+            errorCode: 0,
+            check: hasSubmitted, 
+            message: hasSubmitted
+              ? "Bạn đã có bài đăng cho chủ đề này!"
+              : "Bạn chưa có bài đăng cho chủ đề!",
+          });
+      
         } catch (error) {
-            return res.status(400).json({
-                errorCode: 1,
-                check: check,
-                message: "Bạn đã có bài đăng cho chủ đề này!",
-            })
-        } 
-    },
+          return res.status(400).json({
+            errorCode: 1,
+            message: error.message || "Lỗi khi kiểm tra submission",
+          });
+        }
+      },
+      
     deletesubmission: async (req, res) => {
       try {
         const _id = req.params.id;

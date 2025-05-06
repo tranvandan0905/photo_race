@@ -1,20 +1,25 @@
 const express = require("express");
-const { findcheckvoteTopicUser, postVoteTopic } = require("../controllers/voteTopic.controller");
+const { findcheckvoteTopicUser, postVoteTopic,deleteVoteTopic } = require("../controllers/voteTopic.controller");
 const { getcomment, deletecomment,postcomment, patchcomment} = require("../controllers/comment.controller");
-const { findlike } = require("../controllers/like.controller");
+const { findlike, getsumlike, deletelike, postlike } = require("../controllers/like.controller");
+const { postVoteSubmission, deleteVoteSubmission, getsumVoteSubmission } = require("../controllers/voteSubmission.controller");
 const routeAPI=express.Router();
-// vote topic 
-routeAPI.get('/votetopic/findvote/:id',findcheckvoteTopicUser);
-routeAPI.post('/votetopic',postVoteTopic);
-// comment 
-routeAPI.get('/submission/:id/comments', getcomment);
-routeAPI.delete('/comment/:id',deletecomment);
-routeAPI.post('/comment',postcomment);
-routeAPI.patch('/comment/:id',patchcomment);
-// like 
-routeAPI.get('/submission/:id/like', getcomment);
-routeAPI.delete('/like/:id',deletecomment);
-routeAPI.post('/like',postcomment);
-routeAPI.get('/findlike',findlike);
-
+// VoteTopic
+routeAPI.get('/votetopics/user/:id', findcheckvoteTopicUser);
+routeAPI.post('/votetopics', postVoteTopic);
+routeAPI.delete('/votetopics/:topic_id/:user_id', deleteVoteTopic);
+// Comments
+routeAPI.get('/submissions/:id/comments', getcomment);
+routeAPI.post('/comments', postcomment);
+routeAPI.delete('/comments/:id', deletecomment);
+routeAPI.patch('/comments/:id', patchcomment);
+// Likes
+routeAPI.get('/submissions/:id/likes', getsumlike);
+routeAPI.post('/likes', postlike);
+routeAPI.delete('/likes/:submission_id/:user_id', deletelike);
+routeAPI.get('/likes/check', findlike);
+// VoteSubmission
+routeAPI.get('/votesubmissions/:id', getsumVoteSubmission);
+routeAPI.post('/votesubmissions', postVoteSubmission);
+routeAPI.delete('/votesubmissions/:submission_id/:user_id', deleteVoteSubmission);
 module.exports=routeAPI;

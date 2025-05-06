@@ -1,5 +1,5 @@
 
-const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU } = require("../services/user.services");
+const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU } = require("../services/user.services");
 module.exports = {
     getuser: async (req, res) => {
         try {
@@ -78,8 +78,8 @@ module.exports = {
     },
     findUser: async (req, res) => {
         try {
-            const { name } = req.query;
-            const user = await handeFindUser(name);
+            const { email } = req.query;
+            const user = await handeFindUser(email);
             return res.status(200).json({
                 data: user
             });
@@ -93,6 +93,21 @@ module.exports = {
         try {
             const _id = req.params.id;
             const xu = await handePatchVoteXU(_id);
+            return res.status(200).json({
+                check: true,
+                message: "Đã thanh toán xu thành công!"
+            });
+        } catch (err) {
+            return res.status(400).json({
+                check: false,
+                message: err.message || "Có lỗi xảy ra!",
+            });
+        }
+    },
+    CancelVoteXu: async (req,res)=>{
+        try {
+            const _id = req.params.id;
+            const xu = await handeCancelVoteXU(_id);
             return res.status(200).json({
                 check: true,
                 message: "Đã thanh toán xu thành công!"

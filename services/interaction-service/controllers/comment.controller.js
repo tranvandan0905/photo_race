@@ -1,12 +1,14 @@
 
-const { handeGetcomment, handePostcomment, handePatchcomment } = require('../services/comment.services');
+const { handeGetcomment, handePostcomment, handePatchcomment, handeDeletecomment , handleGetSumcomment} = require('../services/comment.services');
 module.exports = {
     getcomment: async (req, res) => {
         try {
             const submission_id = req.params.id;
             const data = await handeGetcomment(submission_id);
+            const totalcomment  = await handleGetSumcomment(submission_id);
             return res.status(200).json({
                 data: data,
+                Sumcomment: totalcomment,
                 message: "Lấy comment thành công!",
             });
         } catch (error) {

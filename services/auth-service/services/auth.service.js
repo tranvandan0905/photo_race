@@ -2,9 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 
-const handelogin = async (name, password) => {
+const handelogin = async (email, password) => {
     const response = await axios.get("http://user-service:3003/api/user/find", {
-        params: { name },
+        params: { email },
         timeout: 3000
       });      
         const user = response.data?.data;
@@ -22,7 +22,7 @@ const handelogin = async (name, password) => {
     }
 
     const token = jwt.sign(
-        { id: user._id, role: user.role },
+        { id: user._id, role: user.role, name: user.name},
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
     );

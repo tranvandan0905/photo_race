@@ -1,14 +1,14 @@
 
 const Submission = require("../models/submission.model");
-const handeGetSubmission = async () => {
-    const data = await Submission.find({});
-    if (!data) {
-        throw new Error("Không có bài đăng nào!");
+const handeGetSubmission = async (user_id) => {
+    const filter = user_id ? { user_id } : {};
+    return await Submission.find(filter);
+  };
+const handeFindSubmission_Topic = async (topic_id,user_id) => {
+    if (!topic_id || !user_id) {
+        throw new Error("Thiếu thông tin!");
     }
-    return data;
-};
-const handeFindSubmission_Topic = async (topic_id) => {
-    const data = await Submission.find({topic_id});
+    const data = await Submission.find({topic_id,user_id});
     return data;
 };
 const handlePostSubmission = async (user_id, topic_id, title, imageUrl ) => {
