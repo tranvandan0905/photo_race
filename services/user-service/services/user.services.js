@@ -80,12 +80,26 @@ const handleFindIDUser = async (_id) => {
 };
 const handeFindUser = async (email) => {
   if (!email) {
-    throw new Error("Thiếu name người dùng!");
+    throw new Error("Thiếu email người dùng!");
   }
   const user = await users.findOne({ email });
   if (!user) throw new Error('Không tìm thấy user theo email');
   return user;
 }
+const handleFindNameUser = async (name) => {
+  if (!name) {
+    throw new Error("Thiếu name người dùng!");
+  }
+  const usersFound = await users.find({
+    name: { $regex: name, $options: "i" }
+  });
+
+  if (!usersFound || usersFound.length === 0) {
+    throw new Error("Không tìm thấy user theo name");
+  }
+  return usersFound;
+};
+
 const handePatchVoteXU = async (_id) => {
   if (!_id) {
     throw new Error("Thiếu ID");
@@ -128,5 +142,5 @@ const handeCancelVoteXU = async (_id) => {
 
 
 module.exports = {
-  handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU,handeCancelVoteXU
+  handlePostUser,handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU,handeCancelVoteXU
 };

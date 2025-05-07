@@ -5,7 +5,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const authenticateToken = require('../controllers/middleware.getway');
 const {postsubmission,getsubmission} = require('../controllers/submission.getway');
 const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../controllers/topic.getway");
-const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser } = require("../controllers/user.gateway");
+const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser } = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, getsumVoteSubmission, postVoteSubmission, deleteVoteSubmission } = require("../controllers/interaction.getway");
 const { login } = require("../controllers/auth.getway");
 // Submission 
@@ -24,13 +24,14 @@ routeAPI.get('/user',getUser);
 routeAPI.post('/user',postUser);
 routeAPI.delete('/user/:id', deleteUser);
 routeAPI.put('/user/:id',updateUser);
-routeAPI.get('/user/findID/:id', findUserById);
+routeAPI.get('/user/findID',authenticateToken, findUserById);
 routeAPI.get('/user/find', findUser);
+routeAPI.get('/user/find/name', findNameUser);
 routeAPI.patch('/user/vote/:id', patchVoteXu);
 // interaction 
 // VoteTopic
 routeAPI.get('/votetopics/user/:id', findcheckvoteTopicUser);
-routeAPI.post('/votetopics', postVoteTopic);
+routeAPI.post('/votetopics',authenticateToken, postVoteTopic);
 routeAPI.delete('/votetopics/:topic_id/:user_id', deleteVoteTopic);
 
 // Comments

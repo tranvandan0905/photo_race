@@ -13,9 +13,9 @@ const getUser = async (req, res) => {
 
 const findUser = async (req, res) => {
   try {
-    const { name } = req.query;
+    const { email } = req.query;
     const response = await axios.get("http://user-service:3003/api/user/find", {
-      params: { name }
+      params: { email }
     });
     return res.status(200).json({ data: response.data });
   } catch (err) {
@@ -25,6 +25,19 @@ const findUser = async (req, res) => {
   }
 };
 
+const findNameUser = async (req, res) => {
+  try {
+    const { name } = req.query;
+    const response = await axios.get("http://user-service:3003/api/user/find/name", {
+      params: { name }
+    });
+    return res.status(200).json({ data: response.data });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+    });
+  }
+};
 const deleteUser = async (req, res) => {
   try {
     const user_id = req.params.id;
@@ -52,8 +65,8 @@ const updateUser = async (req, res) => {
 
 const findUserById = async (req, res) => {
   try {
-    const user_id = req.params.id;
-    const result = await axios.get(`http://user-service:3003/api/user/findID/${user_id}`);
+    const user_id = req.query.id || req.user.id;
+    const result = await axios.get(`http://user-service:3003/api/user/findID/${user_id}`);    
     return res.status(200).json({ data: result.data.data });
   } catch (err) {
     return res.status(400).json({
@@ -93,5 +106,6 @@ module.exports = {
   updateUser,
   findUserById,
   patchVoteXu,
-  postUser
+  postUser,
+  findNameUser
 };

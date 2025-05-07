@@ -30,19 +30,15 @@ const handefindcheckvoteTopicUser = async (userID) => {
 
     return lastTopic;
 };
-const handepostVoteTopic = async (topic_id, user_id) => {
-    if (!topic_id || !user_id) {
+const handepostVoteTopic = async (user_id) => {
+    if (!user_id) {
         throw new Error("Thiếu thông tin!");
     }
-
+    const lastTopic = await getLastTopic();
+    const topic_id=lastTopic._id;
     const existingVote = await voteTopic.findOne({ topic_id, user_id });
     if (existingVote) {
         throw new Error("Bạn đã VoteTopic!");
-    }
-
-    const lastTopic = await getLastTopic();
-    if (!lastTopic || lastTopic._id !== topic_id) {
-        throw new Error("Chủ đề không hợp lệ hoặc không phải chủ đề hiện tại!");
     }
 
     if (!isInVoteTime(lastTopic)) {

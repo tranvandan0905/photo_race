@@ -3,8 +3,6 @@ const axios = require('axios');
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Gửi request đến auth-service
     let response;
     try {
       response = await axios.post('http://auth-service:3008/api/auth/login', {

@@ -21,11 +21,10 @@ const postsubmission = async (req, res) => {
     if (!topic_id) {
       throw new Error("Không tìm thấy topic đã vote!");
     }
-    // Kiểm tra user đã nộp bài chưa
     try {
       const checktopic = await axios.get(`http://submission-service:3005/api/submission/findIDTopic/${topic_id}/${user_id}`);
       if (checktopic.data.check) {
-        throw new Error(checktopic.data.message); // Đã có bài => không cho nộp tiếp
+        throw new Error(checktopic.data.message); 
       }
       
     } catch (err) {
@@ -64,7 +63,6 @@ const postsubmission = async (req, res) => {
     });
   }
 };
-
 const getsubmission = async (req, res) => {
   try {
     const user_id = req.query.user_id;

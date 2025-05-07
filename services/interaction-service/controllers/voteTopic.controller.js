@@ -19,8 +19,8 @@ module.exports = {
     },
     postVoteTopic: async (req, res) => {
         try {
-            const { topic_id, user_id } = req.body;
-            const result = await handepostVoteTopic(topic_id, user_id);
+            const  {user_id}  = req.body;
+            const result = await handepostVoteTopic( user_id);
 
             return res.status(200).json({
                 data: result,

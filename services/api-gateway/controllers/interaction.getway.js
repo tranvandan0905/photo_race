@@ -88,8 +88,8 @@ module.exports = {
 
     postVoteTopic: async (req, res) => {
         try {
-            const { topic_id, user_id } = req.body;
-            const response = await axios.post('http://interaction-service:3006/api/interaction/votetopics', { topic_id, user_id });
+            const user_id = req.user.id;
+            const response = await axios.post('http://interaction-service:3006/api/interaction/votetopics',{user_id});
             return res.status(200).json(response.data);
         } catch (error) {
             return res.status(500).json({
