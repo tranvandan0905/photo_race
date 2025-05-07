@@ -11,8 +11,7 @@ const loginPages = async (req, res) => {
     
     } catch (error) {
         res.status(500).json({
-            message: "Đăng nhập thất bại!",
-            error: error.message
+            message: error.message || 'Đăng nhập thất bại!',
         });
     }
 };

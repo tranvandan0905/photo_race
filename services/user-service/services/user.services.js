@@ -40,7 +40,7 @@ const handleDeleteUser = async (_id) => {
   return user;
 };
 const handleUpdateUser = async (data, _id) => {
-  const { name, password, xu, role, check_email, image } = data;
+  const { name, password, xu, role, check_email, imageUrl } = data;
 
   if (!_id) {
     throw new Error("Thiếu ID người dùng!");
@@ -56,7 +56,7 @@ const handleUpdateUser = async (data, _id) => {
     xu: xu !== undefined ? xu : userid.xu,
     role: role || userid.role,
     check_email: check_email !== undefined ? check_email : userid.check_email,
-    image: image || userid.image,
+    image: imageUrl || userid.image,
   };
 
   if (password) {
@@ -83,7 +83,6 @@ const handeFindUser = async (email) => {
     throw new Error("Thiếu email người dùng!");
   }
   const user = await users.findOne({ email });
-  if (!user) throw new Error('Không tìm thấy user theo email');
   return user;
 }
 const handleFindNameUser = async (name) => {

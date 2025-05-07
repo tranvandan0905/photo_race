@@ -5,7 +5,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const authenticateToken = require('../controllers/middleware.getway');
 const {postsubmission,getsubmission} = require('../controllers/submission.getway');
 const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../controllers/topic.getway");
-const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser } = require("../controllers/user.gateway");
+const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser, updateAvataUser } = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, getsumVoteSubmission, postVoteSubmission, deleteVoteSubmission } = require("../controllers/interaction.getway");
 const { login } = require("../controllers/auth.getway");
 // Submission 
@@ -23,7 +23,8 @@ routeAPI.get('/topic/find', findTopic);
 routeAPI.get('/user',getUser);
 routeAPI.post('/user',postUser);
 routeAPI.delete('/user/:id', deleteUser);
-routeAPI.put('/user/:id',updateUser);
+routeAPI.put('/user',authenticateToken,updateUser);
+routeAPI.put('/user/Avata',authenticateToken,upload.single("file"),updateAvataUser);
 routeAPI.get('/user/findID',authenticateToken, findUserById);
 routeAPI.get('/user/find', findUser);
 routeAPI.get('/user/find/name', findNameUser);

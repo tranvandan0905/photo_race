@@ -91,7 +91,7 @@ const getsubmission = async (req, res) => {
           return {
             ...post,
             user_name: user?.name || "Unknown",
-            avatar: user?.avatar || null,
+            avatar: user?.image || null,
             like: totalLikes,
             comment: totalComments,
             vote: totalVotes,

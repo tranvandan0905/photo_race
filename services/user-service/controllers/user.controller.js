@@ -85,6 +85,7 @@ module.exports = {
             });
         } catch (err) {
             return res.status(400).json({
+                data:[],
                 message: err.message || "Có lỗi xảy ra!",
             });
         }

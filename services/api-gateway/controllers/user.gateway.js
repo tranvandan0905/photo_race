@@ -1,5 +1,5 @@
 const axios = require('axios');
-
+const FormData = require('form-data');
 const getUser = async (req, res) => {
   try {
     const response = await axios.get('http://user-service:3003/api/user');
@@ -52,7 +52,7 @@ const deleteUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const user_id = req.params.id;
+    const user_id = req.user.id;
     const data = req.body;
     const result = await axios.put(`http://user-service:3003/api/user/${user_id}`, data);
     return res.status(200).json({ data: result.data });
@@ -66,7 +66,7 @@ const updateUser = async (req, res) => {
 const findUserById = async (req, res) => {
   try {
     const user_id = req.query.id || req.user.id;
-    const result = await axios.get(`http://user-service:3003/api/user/findID/${user_id}`);    
+    const result = await axios.get(`http://user-service:3003/api/user/findID/${user_id}`);
     return res.status(200).json({ data: result.data.data });
   } catch (err) {
     return res.status(400).json({
@@ -74,7 +74,55 @@ const findUserById = async (req, res) => {
     });
   }
 };
+const updateAvataUser = async (req, res) => {
+  try {
+    const user_id = req.user?.id;
+    const image = req.file;
 
+    if (!user_id) {
+      return res.status(400).json({ message: "Không tìm thấy ID người dùng!" });
+    }
+
+    if (!image) {
+      return res.status(400).json({ message: "Vui lòng chọn ảnh!" });
+    }
+
+    // Tạo form-data để gửi sang media-service
+    const form = new FormData();
+    form.append("file", image.buffer, {
+      filename: image.originalname,
+      contentType: image.mimetype
+    });
+    const uploadRes = await axios.post(
+      'http://media-service:5000/api/media/upload',
+      form,
+      { headers: form.getHeaders() }
+    );
+
+    const imageUrl = uploadRes.data?.data?.secure_url;
+
+    if (!imageUrl) {
+      return res.status(500).json({ message: "Lấy đường dẫn ảnh thất bại!" });
+    }
+
+    // Gọi sang user-service để cập nhật ảnh đại diện
+    const updateRes = await axios.put(
+      `http://user-service:3003/api/user/${user_id}`,
+      { imageUrl }
+    );
+
+    return res.status(200).json({
+      message: "Cập nhật ảnh đại diện thành công!",
+      data: updateRes.data
+    });
+
+  } catch (error) {
+    console.error("Lỗi update avatar:", error.message);
+    return res.status(500).json({
+      message: error.response?.data?.message || "Đã có lỗi xảy ra!"
+    });
+  }
+};
 const patchVoteXu = async (req, res) => {
   try {
     const user_id = req.params.id;
@@ -107,5 +155,6 @@ module.exports = {
   findUserById,
   patchVoteXu,
   postUser,
-  findNameUser
+  findNameUser,
+  updateAvataUser
 };
