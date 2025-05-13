@@ -6,10 +6,6 @@ const topRankingSchema = new Schema({
     type: String,
     required: true
   },
-  topic_id: {
-    type: String,
-    required: true
-  },
   submission_id: {
     type: String,
     required: true

@@ -1,4 +1,4 @@
-const { handepostVoteSubmission, handeDeleteVoteSubmission, handleGetSumVoteSubmission } = require("../services/voteSubmission.services");
+const { handepostVoteSubmission, handeDeleteVoteSubmission, handleGetSumVoteSubmission, handefindVoteSub } = require("../services/voteSubmission.services");
 
 module.exports = {
     postVoteSubmission: async (req, res) => {
@@ -39,7 +39,7 @@ module.exports = {
             const totalvotes = await handleGetSumVoteSubmission(submission_id);
             return res.status(200).json({
                 id: submission_id,
-                sumvote: totalvotes 
+                sumvote: totalvotes
             });
         } catch (err) {
             return res.status(400).json({
@@ -47,5 +47,21 @@ module.exports = {
             });
         }
     },
-
+   findVoteSub: async (req, res) => {
+    try {
+        const { submission_id, user_id } = req.params;
+        const result = await handefindVoteSub(submission_id, user_id);
+            return res.status(200).json({
+                
+                check: result,
+            });
+    } catch (error) {
+        return res.status(500).json({
+          
+            check: false,
+            message: error.message || "Có lỗi xảy ra!",
+        });
+    }
 }
+
+ }

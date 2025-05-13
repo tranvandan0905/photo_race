@@ -42,9 +42,13 @@ const handepostVoteSubmission = async (submission_id, user_id) => {
         const message = err.response?.data?.message || err.message || "Không thể kết nối đến user-service!";
         throw new Error(message);
     }
-
     const data = await VoteSubmission.create({ submission_id, user_id });
-    return data;
+     const Sumvote = await VoteSubmission.countDocuments({ submission_id });
+    return {
+        isVoted: true,
+        VoteCount: Sumvote,
+        wasVoted: !!data
+    };
 };
 
 // Xóa vote
@@ -73,13 +77,27 @@ const handeDeleteVoteSubmission = async (submission_id, user_id) => {
     }
 
     const data = await VoteSubmission.findOneAndDelete({ submission_id, user_id });
+        const Sumvote = await VoteSubmission.countDocuments({ submission_id });
     if (!data) {
         throw new Error("VoteSubmission không tồn tại!");
     }
 
-    return data;
+    return {
+        isVoted: false,
+        VoteCount: Sumvote,
+        wasVoted: !!data
+    };
 };
-
+const handefindVoteSub = async (submission_id, user_id) => {
+    if (!submission_id || !user_id) {
+        throw new Error("Thiếu ID!");
+    }
+    const result = await VoteSubmission.findOne({ submission_id, user_id });
+    if (result) {
+        return true;
+    }
+    return false;
+}
 module.exports = {
-    handeDeleteVoteSubmission, handepostVoteSubmission, handleGetSumVoteSubmission
+    handeDeleteVoteSubmission, handepostVoteSubmission, handleGetSumVoteSubmission, handefindVoteSub
 };

@@ -2,14 +2,20 @@ const comment = require('../models/comment.model');
 module.exports = {
     handeGetcomment: async (submission_id) => {
         if (!submission_id) throw new Error("Không tìm thấy ID bài viết");
-        const data = await comment.find({ submission_id });
-        return data;
+
+        const comments = await comment.find({ submission_id });
+        const totalComments = await comment.countDocuments({ submission_id });
+
+        return {
+            data: comments,
+            total: totalComments
+        };
     },
+
     handleGetSumcomment: async (submission_id) => {
         if (!submission_id) {
             throw new Error("Không tìm thấy ID bài viết");
         }
-
         const totalLikes = await comment.countDocuments({ submission_id });
         return totalLikes;
     },

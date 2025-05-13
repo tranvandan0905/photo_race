@@ -6,7 +6,7 @@ const authenticateToken = require('../controllers/middleware.getway');
 const {postsubmission,getsubmission} = require('../controllers/submission.getway');
 const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../controllers/topic.getway");
 const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser, updateAvataUser } = require("../controllers/user.gateway");
-const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, getsumVoteSubmission, postVoteSubmission, deleteVoteSubmission } = require("../controllers/interaction.getway");
+const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission, deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
 const { login } = require("../controllers/auth.getway");
 // Submission 
 routeAPI.post('/submission',authenticateToken,upload.single("file"),postsubmission);
@@ -37,19 +37,19 @@ routeAPI.delete('/votetopics/:topic_id/:user_id', deleteVoteTopic);
 
 // Comments
 routeAPI.get('/submissions/:id/comments', getcomment);
-routeAPI.post('/comments', postcomment);
+routeAPI.post('/comments',authenticateToken,postcomment);
 routeAPI.delete('/comments/:id', deletecomment);
 routeAPI.patch('/comments/:id', patchcomment);
 
 // Likes
 routeAPI.get('/submissions/:id/likes', getsumlike);
-routeAPI.post('/likes', postlike);
-routeAPI.delete('/likes/:submission_id/:user_id', deletelike);
-routeAPI.get('/likes/check', findlike);
+routeAPI.post('/likes',authenticateToken, postlike);
+routeAPI.delete('/likes/:submission_id',authenticateToken, deletelike);
+routeAPI.get('/likes/check/:submission_id',authenticateToken, findlike);
 // Vote Submission
-routeAPI.get('/votesubmissions/:id',getsumVoteSubmission );
-routeAPI.post('/votesubmissions', postVoteSubmission);
-routeAPI.delete('/votesubmissions/:submission_id/:user_id', deleteVoteSubmission);
+routeAPI.post('/votesubmissions',authenticateToken, postVoteSubmission);
+routeAPI.delete('/votesubmissions/:submission_id',authenticateToken, deleteVoteSubmission);
+routeAPI.get('/votesubmissions/check/:submission_id',authenticateToken, findVoteSub);
 module.exports = routeAPI;
 
 

@@ -8,7 +8,7 @@ const postsubmission = async (req, res) => {
     if (!title || !image || !user_id) {
       throw new Error("Vui lòng điền đầy đủ thông tin!");
     }
-  // Lấy topic đã vote của user
+    // Lấy topic đã vote của user
     let votetopic;
     try {
       const resVote = await axios.get(`http://interaction-service:3006/api/interaction/votetopics/user/${user_id}`);
@@ -24,9 +24,9 @@ const postsubmission = async (req, res) => {
     try {
       const checktopic = await axios.get(`http://submission-service:3005/api/submission/findIDTopic/${topic_id}/${user_id}`);
       if (checktopic.data.check) {
-        throw new Error(checktopic.data.message); 
+        throw new Error(checktopic.data.message);
       }
-      
+
     } catch (err) {
       throw new Error(err.response?.data?.message || "Không thể kiểm tra bài submission!");
     }
@@ -69,7 +69,7 @@ const getsubmission = async (req, res) => {
     const response = await axios.get(`http://submission-service:3005/api/submission`, {
       params: user_id ? { user_id } : {},
     });
-    const submissions = response.data?.data || [];    
+    const submissions = response.data?.data || [];
     const submissionsWithUser = await Promise.all(
       submissions.map(async (post) => {
         try {
@@ -82,12 +82,11 @@ const getsubmission = async (req, res) => {
           const totalLikes = likesRes.data.sumlike || 0;
 
           // Lấy tổng số comment
-          const commentsRes = await axios.get(`http://interaction-service:3006/api/interaction/submissions/${post._id}/comments`);
-          const totalComments = commentsRes.data?.Sumcomment || 0;
+          const response = await axios.get(`http://interaction-service:3006/api/interaction/submissions/${post._id}/comments`);
+          const totalComments = response.data?.data?.total || 0;
           // Lấy tổng số vote
           const votesRes = await axios.get(`http://interaction-service:3006/api/interaction/votesubmissions/${post._id}`);
           const totalVotes = votesRes.data.sumvote || 0;
-
           return {
             ...post,
             user_name: user?.name || "Unknown",
@@ -124,4 +123,4 @@ const getsubmission = async (req, res) => {
   }
 };
 
-module.exports = { postsubmission ,getsubmission};
+module.exports = { postsubmission, getsubmission };

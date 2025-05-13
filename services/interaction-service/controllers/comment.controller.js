@@ -5,15 +5,13 @@ module.exports = {
         try {
             const submission_id = req.params.id;
             const data = await handeGetcomment(submission_id);
-            const totalcomment  = await handleGetSumcomment(submission_id);
+          
             return res.status(200).json({
                 data: data,
-                Sumcomment: totalcomment,
-                message: "Lấy comment thành công!",
+               
             });
         } catch (error) {
             return res.status(400).json({
-                errorCode: 1,
                 data: [],
                 message: error.message || 'Có lỗi xảy ra!',
             });

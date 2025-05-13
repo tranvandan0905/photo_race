@@ -3,45 +3,51 @@ const axios = require('axios');
 module.exports = {
     getcomment: async (req, res) => {
         try {
-          const submission_id = req.params.id;
-          const response = await axios.get(`http://interaction-service:3006/api/interaction/submissions/${submission_id}/comments`);
-          const comments = response.data?.data || [];
-      
-          const commentsWithUser = await Promise.all(
-            comments.map(async (comment) => {
-              try {
-                const userRes = await axios.get(`http://user-service:3003/api/user/findID/${comment.user_id}`);
-                const user = userRes.data?.data;
-                return {
-                  ...comment,
-                  user_name: user?.name || "Unknown",
-                  avatar: user?.avatar || null,
-                };
-              } catch (userErr) {
-                return {
-                  ...comment,
-                  user_name: "Unknown",
-                  avatar: null,
-                };
-              }
-            })
-          );
-      
-          return res.status(200).json({
-            errorCode: 0,
-            data: commentsWithUser,
-            message: "Lấy danh sách bình luận kèm thông tin user thành công!",
-          });
+            const submission_id = req.params.id;
+            const response = await axios.get(`http://interaction-service:3006/api/interaction/submissions/${submission_id}/comments`);
+            const payload = response.data?.data || {};
+            const comments = payload.data || [];
+            const total = payload.total || 0;
+
+            const commentsWithUser = await Promise.all(
+                comments.map(async (comment) => {
+                    try {
+                        const userRes = await axios.get(`http://user-service:3003/api/user/findID/${comment.user_id}`);
+                        const user = userRes.data?.data;
+
+                        return {
+                            ...comment,
+                            user_name: user?.name || "Unknown",
+                            avatar: user?.avatar || null,
+                        };
+                    } catch (userErr) {
+                        return {
+                            ...comment,
+                            user_name: "Unknown",
+                            avatar: null,
+                        };
+                    }
+                })
+            );
+
+            return res.status(200).json({
+                errorCode: 0,
+                data: commentsWithUser,
+                Sumcomment: total,
+                message: "Lấy danh sách bình luận kèm thông tin user thành công!",
+            });
         } catch (error) {
-          return res.status(500).json({
-            message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
-          });
+            return res.status(500).json({
+                message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
+            });
         }
-      },
-         
+    },
+
     postcomment: async (req, res) => {
         try {
-            const response = await axios.post(`http://interaction-service:3006/api/interaction/comments`, req.body);
+            const user_id = req.user.id;
+            const { submission_id, content } = req.body;
+            const response = await axios.post(`http://interaction-service:3006/api/interaction/comments`, { submission_id, content, user_id });
             return res.status(200).json({ data: response.data.data });
         } catch (error) {
             return res.status(500).json({
@@ -89,7 +95,7 @@ module.exports = {
     postVoteTopic: async (req, res) => {
         try {
             const user_id = req.user.id;
-            const response = await axios.post('http://interaction-service:3006/api/interaction/votetopics',{user_id});
+            const response = await axios.post('http://interaction-service:3006/api/interaction/votetopics', { user_id });
             return res.status(200).json(response.data);
         } catch (error) {
             return res.status(500).json({
@@ -124,7 +130,8 @@ module.exports = {
 
     postlike: async (req, res) => {
         try {
-            const { submission_id, user_id } = req.body;
+            const user_id = req.user.id;
+            const { submission_id } = req.body;
             const response = await axios.post('http://interaction-service:3006/api/interaction/likes', { submission_id, user_id });
             return res.status(200).json(response.data);
         } catch (error) {
@@ -136,20 +143,9 @@ module.exports = {
 
     deletelike: async (req, res) => {
         try {
-            const { submission_id, user_id } = req.params;
+            const user_id = req.user.id;
+            const { submission_id } = req.params;
             const response = await axios.delete(`http://interaction-service:3006/api/interaction/likes/${submission_id}/${user_id}`);
-            return res.status(200).json(response.data);
-        } catch (error) {
-            return res.status(500).json({
-                message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!"
-            });
-        }
-    },
-
-    findlike: async (req, res) => {
-        try {
-            const { submission_id, user_id } = req.query;
-            const response = await axios.get(`http://interaction-service:3006/api/interaction/likes/check?submission_id=${submission_id}&user_id=${user_id}`);
             return res.status(200).json(response.data);
         } catch (error) {
             return res.status(500).json({
@@ -159,7 +155,8 @@ module.exports = {
     },
     postVoteSubmission: async (req, res) => {
         try {
-            const { submission_id, user_id } = req.body;
+            const user_id = req.user.id;
+            const { submission_id } = req.body;
             const response = await axios.post('http://interaction-service:3006/api/interaction/votesubmissions', { submission_id, user_id });
             return res.status(200).json(response.data);
         } catch (error) {
@@ -171,7 +168,8 @@ module.exports = {
     },
     deleteVoteSubmission: async (req, res) => {
         try {
-            const { submission_id, user_id } = req.params;
+            const user_id = req.user.id;
+            const { submission_id } = req.params;
             const response = await axios.delete(`http://interaction-service:3006/api/interaction/votesubmissions/${submission_id}/${user_id}`);
             return res.status(200).json(response.data);
         } catch (error) {
@@ -180,15 +178,32 @@ module.exports = {
             });
         }
     },
-    getsumVoteSubmission: async (req, res) => {
+
+    findVoteSub: async (req, res) => {
         try {
-            const submission_id = req.params.id;
-            const response = await axios.get(`http://interaction-service:3006/api/interaction/votesubmissions/${submission_id}`);
-            return res.status(200).json(response.data);
+            const user_id = req.user.id;
+            const { submission_id } = req.params;
+            const checkvote = await axios.get(`http://interaction-service:3006/api/interaction/votesubmissions/check/${submission_id}/${user_id}`);
+            const isvoted = checkvote.data;
+            return res.status(200).json(isvoted);
         } catch (error) {
             return res.status(500).json({
                 message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!"
             });
         }
     },
+    findlike: async (req, res) => {
+        try {
+            const user_id = req.user.id;
+            const { submission_id } = req.params;
+            const checklike = await axios.get(`http://interaction-service:3006/api/interaction/likes/check/${submission_id}/${user_id}`);
+            const isLiked = checklike.data;
+            return res.status(200).json(isLiked);
+        } catch (error) {
+            return res.status(500).json({
+                message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!"
+            });
+        }
+    },
+
 }
