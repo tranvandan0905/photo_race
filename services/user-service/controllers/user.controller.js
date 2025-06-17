@@ -1,5 +1,8 @@
 
 const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser } = require("../services/user.services");
+const { sendVerificationEmail,verify } = require('./email.controller');
+const crypto = require('crypto');
+let fakeDB = []; 
 module.exports = {
     getuser: async (req, res) => {
         try {
@@ -132,7 +135,54 @@ module.exports = {
                 message: err.message || "Có lỗi xảy ra!",
             });
         }
+    },
+
+
+  emailconfirmation: async (req, res) => {
+    const { email,name,password } = req.body;
+    const token = crypto.randomUUID();
+    fakeDB.push({ email, password,name,token, verified: false });
+
+    try {
+      await sendVerificationEmail(email, token);
+      return res.status(200).json({ message: 'Gửi email xác nhận thành công!' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Lỗi gửi email!' });
+    }
+  },
+
+ verifyUser: async (req, res) => {
+    const { token } = req.query;
+
+    // Tìm user trong fakeDB theo token
+    const user = fakeDB.find(u => u.token === token);
+
+    if (!user) {
+        return res.status(400).send('Token không hợp lệ hoặc đã hết hạn!');
     }
 
+    if (user.verified) {
+        return res.status(400).send('Tài khoản đã được xác minh trước đó!');
+    }
+
+    try {
+        // Đánh dấu đã xác minh
+        user.verified = true;
+
+        // Gọi hàm thêm user vào DB thật
+        const createdUser = await handlePostUser({
+            email: user.email,
+            name: user.name,
+            password: user.password
+        });
+
+        // Trả kết quả
+        return res.status(201).send(' Tài khoản đã được xác minh và tạo thành công!');
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send(' Xác minh thành công nhưng tạo user thất bại!');
+    }
+}
 
 }
