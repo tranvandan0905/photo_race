@@ -18,5 +18,23 @@ const login = async (req, res) => {
       });
     }
 };
+const register = async (req, res) => {
+  try {
+    const { email, name, password } = req.body;
 
-module.exports = { login };
+    const response = await axios.post('http://user-service:3003/api/user/email-confirm', {
+      email,
+      name,
+      password
+    });
+
+    return res.status(200).json({
+      message: response.data,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
+    });
+  }
+};
+module.exports = { login,register };

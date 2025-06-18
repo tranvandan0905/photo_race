@@ -104,8 +104,6 @@ const updateAvataUser = async (req, res) => {
     if (!imageUrl) {
       return res.status(500).json({ message: "Lấy đường dẫn ảnh thất bại!" });
     }
-
-    // Gọi sang user-service để cập nhật ảnh đại diện
     const updateRes = await axios.put(
       `http://user-service:3003/api/user/${user_id}`,
       { imageUrl }

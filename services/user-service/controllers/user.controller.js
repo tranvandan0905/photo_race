@@ -1,8 +1,7 @@
 
-const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser } = require("../services/user.services");
-const { sendVerificationEmail,verify } = require('./email.controller');
-const crypto = require('crypto');
-let fakeDB = []; 
+const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser } = require("../services/user.services");
+const { sendVerificationEmail } = require('./email.controller');
+
 module.exports = {
     getuser: async (req, res) => {
         try {
@@ -88,7 +87,7 @@ module.exports = {
             });
         } catch (err) {
             return res.status(400).json({
-                data:[],
+                data: [],
                 message: err.message || "Có lỗi xảy ra!",
             });
         }
@@ -121,7 +120,7 @@ module.exports = {
             });
         }
     },
-    CancelVoteXu: async (req,res)=>{
+    CancelVoteXu: async (req, res) => {
         try {
             const _id = req.params.id;
             const xu = await handeCancelVoteXU(_id);
@@ -138,51 +137,37 @@ module.exports = {
     },
 
 
-  emailconfirmation: async (req, res) => {
-    const { email,name,password } = req.body;
-    const token = crypto.randomUUID();
-    fakeDB.push({ email, password,name,token, verified: false });
+    emailconfirmation: async (req, res) => {
 
-    try {
-      await sendVerificationEmail(email, token);
-      return res.status(200).json({ message: 'Gửi email xác nhận thành công!' });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Lỗi gửi email!' });
+        try {
+            const { email, name, password } = req.body;
+            const check_email = await handleemailconfirmation(email, name, password);
+            return res.status(200).json({
+                data: check_email
+            });
+        } catch (err) {
+            return res.status(400).json({
+              
+                message: err.message || "Có lỗi xảy ra!",
+            });
+        }
+    },
+
+    verifyUser: async (req, res) => {
+
+        try {
+            const { token } = req.query;
+
+            const check_email = await handleverifyUser(token);
+            return res.status(200).json({
+                data: check_email
+            });
+        } catch (err) {
+            return res.status(400).json({
+            
+                message: err.message || "Có lỗi xảy ra!",
+            });
+        }
     }
-  },
-
- verifyUser: async (req, res) => {
-    const { token } = req.query;
-
-    // Tìm user trong fakeDB theo token
-    const user = fakeDB.find(u => u.token === token);
-
-    if (!user) {
-        return res.status(400).send('Token không hợp lệ hoặc đã hết hạn!');
-    }
-
-    if (user.verified) {
-        return res.status(400).send('Tài khoản đã được xác minh trước đó!');
-    }
-
-    try {
-        // Đánh dấu đã xác minh
-        user.verified = true;
-
-        // Gọi hàm thêm user vào DB thật
-        const createdUser = await handlePostUser({
-            email: user.email,
-            name: user.name,
-            password: user.password
-        });
-
-        // Trả kết quả
-        return res.status(201).send(' Tài khoản đã được xác minh và tạo thành công!');
-    } catch (err) {
-        console.error(err);
-        return res.status(500).send(' Xác minh thành công nhưng tạo user thất bại!');
-    }
-}
 
 }

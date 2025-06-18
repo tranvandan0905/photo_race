@@ -1,14 +1,9 @@
 const users = require('../models/user.model');
 const bcrypt = require("bcryptjs");
+const crypto = require('crypto');
+const { sendVerificationEmail } = require('../controllers/email.controller');
+let fakeDB = [];
 const handlePostUser = async ({ email, name, password }) => {
-
-  if (!email || !name || !password) {
-    throw new Error('Vui lòng nhập đầy đủ thông tin!');
-  }
-  const checkemail = await users.findOne({ email });
-  if (checkemail) {
-    throw new Error('Email đã tồn tại!');
-  }
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = await users.create({
     email,
@@ -17,6 +12,50 @@ const handlePostUser = async ({ email, name, password }) => {
   });
 
   return newUser;
+};
+const handleemailconfirmation = async (email, name, password) => {
+  if (!email || !name || !password) {
+    throw new Error('Nhập đầy đủ thông tin');
+  }
+
+  const checkemail = await findUserWithAnyStatus(email);
+  if (checkemail) {
+    throw new Error('Email đã tồn tại!');
+  }
+
+  const token = crypto.randomUUID();
+  fakeDB.push({ email, password, name, token, verified: false });
+ await sendVerificationEmail(email, token);
+return 'Gửi email xác nhận thành công!';
+
+
+};
+const findUserWithAnyStatus = async (email) => {
+  return await users.collection.findOne({ email }); 
+};
+const handleverifyUser = async (token) => {
+  const user = fakeDB.find(u => u.token === token);
+
+  if (!user) {
+    throw new Error('Token không hợp lệ hoặc hết hạn!');
+  }
+
+  if (user.verified) {
+    throw new Error('Tài khoản đã được xác minh trước đó!');
+  }
+
+  user.verified = true;
+
+  const createdUser = await handlePostUser({
+    email: user.email,
+    name: user.name,
+    password: user.password
+  });
+
+  if (createdUser)
+    return 'Tài khoản đã được xác minh và tạo thành công, bạn hãy tiến hành đăng nhập!';
+  else
+    throw new Error('Tạo tài khoản thất bại!');
 };
 const handGetUser = async (check) => {
   let data = null;
@@ -141,5 +180,5 @@ const handeCancelVoteXU = async (_id) => {
 
 
 module.exports = {
-  handlePostUser,handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU,handeCancelVoteXU
+  handleverifyUser, handleemailconfirmation, handlePostUser, handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU, handeCancelVoteXU
 };

@@ -7,12 +7,13 @@ const {postsubmission,getsubmission} = require('../controllers/submission.getway
 const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../controllers/topic.getway");
 const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser, updateAvataUser } = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission, deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
-const { login } = require("../controllers/auth.getway");
+const { login, register } = require("../controllers/auth.getway");
 // Submission 
 routeAPI.post('/submission',authenticateToken,upload.single("file"),postsubmission);
 routeAPI.get('/submission',getsubmission);
 // Auth
 routeAPI.post('/login',login);
+routeAPI.post('/register',register);
 // Topic 
 routeAPI.get('/topic',getTopic);
 routeAPI.post('/topic',postTopic);
