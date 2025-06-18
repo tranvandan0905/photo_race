@@ -1,4 +1,4 @@
- const { handeGetSubmission, handlePostSubmission,handeFindSubmission_Topic, handeDeleteSubmission } = require("../services/submission.services");
+ const { handeGetSubmission, handlePostSubmission,handeFindSubmission_Topic, handeDeleteSubmission, handeFindSub_Topic } = require("../services/submission.services");
 
 module.exports = {
     getsubmission: async (req, res) => {
@@ -80,5 +80,21 @@ module.exports = {
         }
 
   },
+   FindsubTopic: async (req, res) => {
+        try {
+          const { topic_id} = req.params;
+          const data = await handeFindSub_Topic(topic_id);  
+          return res.status(200).json({
+          data: data,
+          errorCode: 0
+          });
+      
+        } catch (error) {
+          return res.status(400).json({
+            errorCode: 1,
+            message: error.message || "Lỗi khi lấy danh sách",
+          });
+        }
+      },
 
 }

@@ -1,10 +1,9 @@
 require('dotenv').config()
 const express= require('express');
-const app=express();
 const connection=require('./config/db');
-app.get('/',(req,res)=>{
-    res.send("oh");
-});
+const routeAPI=require("./routes/topranking.routes");
+const app=express();
+app.use(express.json());
 (async () => {
     try {
         await connection();
@@ -13,6 +12,7 @@ app.get('/',(req,res)=>{
         console.log(">> error", error)
     }
 })()
+app.use('/api/topranking',routeAPI);
 app.listen(3007,()=>{
     console.log(" ket not thanh cong ");
 })

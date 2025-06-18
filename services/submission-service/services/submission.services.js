@@ -11,6 +11,13 @@ const handeFindSubmission_Topic = async (topic_id,user_id) => {
     const data = await Submission.find({topic_id,user_id});
     return data;
 };
+const handeFindSub_Topic = async (topic_id) => {
+    if (!topic_id) {
+        throw new Error("Thiếu thông tin!");
+    }
+    const data = await Submission.find({topic_id});
+    return data;
+};
 const handlePostSubmission = async (user_id, topic_id, title, imageUrl ) => {
     
     const submission = await Submission.create({
@@ -31,4 +38,4 @@ const handeDeleteSubmission = async (_id) => {
     if (!Sub) throw new Error("User không tồn tại!");
     return Sub;
   };
-module.exports={handeGetSubmission,handlePostSubmission,handeFindSubmission_Topic,handeDeleteSubmission};
+module.exports={handeGetSubmission,handlePostSubmission,handeFindSubmission_Topic,handeDeleteSubmission,handeFindSub_Topic};
