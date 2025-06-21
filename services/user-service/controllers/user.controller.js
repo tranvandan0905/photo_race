@@ -143,7 +143,7 @@ module.exports = {
             const { email, name, password } = req.body;
             const check_email = await handleemailconfirmation(email, name, password);
             return res.status(200).json({
-                data: check_email
+                message:check_email
             });
         } catch (err) {
             return res.status(400).json({

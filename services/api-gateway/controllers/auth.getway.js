@@ -29,7 +29,7 @@ const register = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: response.data,
+      message: response.data.message,
     });
   } catch (error) {
     return res.status(400).json({

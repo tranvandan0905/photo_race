@@ -94,4 +94,19 @@ const isInVoteTime = (topic) => {
     const end = new Date(topic.end_time).getTime();
     return now == end || now > end;
 };
-module.exports={handletopranking} 
+const handleSumTopRanking = async (req, res) => {
+    const result = await TopRanking.aggregate([
+      {
+        $group: {
+          _id: "$user_id", // gom nhóm theo user_id
+          totalScore: { $sum: "$total_score" } // cộng tổng total_score của mỗi user
+        }
+      },
+      {
+        $sort: { totalScore: -1 } // nếu bạn muốn sắp xếp từ cao xuống
+      }
+    ])
+    return result;
+};
+
+module.exports={handletopranking,handleSumTopRanking} 
