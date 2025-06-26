@@ -56,7 +56,7 @@ const findTopic = async (req, res) => {
       message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
     });
   }
-};
+};  
 
 module.exports = {
   getTopic,

@@ -2,7 +2,7 @@
 const Submission = require("../models/submission.model");
 const handeGetSubmission = async (user_id) => {
   const filter = user_id ? { user_id } : {};
-  return await Submission.find(filter).sort({ createdAt: -1 });
+  return await Submission.find(filter).sort({ submitted_at: -1 });
 };
 const handeFindSubmission_Topic = async (topic_id,user_id) => {
     if (!topic_id || !user_id) {

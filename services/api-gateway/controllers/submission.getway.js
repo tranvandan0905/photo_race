@@ -122,5 +122,14 @@ const getsubmission = async (req, res) => {
     });
   }
 };
-
-module.exports = { postsubmission, getsubmission };
+const FindsubTopic = async (req, res) => {
+  try {
+    const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${req.params.topic_id}`);
+    return res.status(200).json({ data: response.data });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+    });
+  }
+}; 
+module.exports = { postsubmission, getsubmission,FindsubTopic };

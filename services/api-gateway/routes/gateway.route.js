@@ -3,15 +3,16 @@ const routeAPI = express.Router();
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const authenticateToken = require('../controllers/middleware.getway');
-const {postsubmission,getsubmission} = require('../controllers/submission.getway');
+const {postsubmission,getsubmission,FindsubTopic} = require('../controllers/submission.getway');
 const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../controllers/topic.getway");
 const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser, updateAvataUser } = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission, deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
 const { login, register } = require("../controllers/auth.getway");
-const { topranking, sumtopranking } = require("../controllers/topranking.gatway");
+const { topranking, sumtopranking, FindTopic_sub } = require("../controllers/topranking.gatway");
 // Submission 
 routeAPI.post('/submission',authenticateToken,upload.single("file"),postsubmission);
 routeAPI.get('/submission',getsubmission);
+routeAPI.get('/submission/FindsubmissionTopic/:topic_id',FindsubTopic);
 // Auth
 routeAPI.post('/login',login);
 routeAPI.post('/register',register);
@@ -55,7 +56,7 @@ routeAPI.get('/votesubmissions/check/:submission_id',authenticateToken, findVote
 //Topranking
 routeAPI.get('/topranking',topranking);
 routeAPI.get('/topranking/toprank',sumtopranking);
-
+routeAPI.get('/topranking-topic/:topic_id', FindTopic_sub);
 module.exports = routeAPI;
 
 
