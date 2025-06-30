@@ -61,6 +61,13 @@ services:
       dockerfile: docker/auth-service.Dockerfile
     ports:
       - "3008:3008"
+  ad-service:
+    container_name: ad-service
+    build:
+      context: .
+      dockerfile: docker/ad-service.Dockerfile
+    ports:
+      - "3009:3009"
   media-service:
     container_name: media-service
     build:

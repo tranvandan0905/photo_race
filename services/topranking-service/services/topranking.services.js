@@ -170,5 +170,35 @@ const handeFindTopic_sub = async (topic_id) => {
         return [];
     }
 };
+const handeTopranking_New = async (topic_id) => {
+    try {
+        const lastTopic = await getLastTopic();
+        const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${lastTopic.topic_id}`);
+        const submissions = response.data?.data || [];
 
-module.exports = { handletopranking, handleSumTopRanking, handeFindTopic_sub } 
+        const submissionsWithTopranking = await Promise.all(
+            submissions.map(async (post) => {
+                try {
+                    const toprankings = await getTopranking(post._id);
+                    if (toprankings) {
+                        return {
+                            submission: post,
+                            topranking: toprankings
+                        };
+                    }
+                } catch (err) {
+                    return {
+                        submission: post,
+                        topranking: []
+                    };
+                }
+            })
+        );
+
+        return submissionsWithTopranking;
+    } catch (err) {
+        return [];
+    }
+};
+
+module.exports = { handletopranking, handleSumTopRanking, handeFindTopic_sub ,handeTopranking_New} 

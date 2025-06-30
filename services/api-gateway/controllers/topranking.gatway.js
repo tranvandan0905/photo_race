@@ -30,6 +30,16 @@ const FindTopic_sub = async(req,res)=>{
     }); 
   }
 };
+const Topranking_New = async(req,res)=>{
+     try {
+    const response = await axios.get(`http://topranking-service:3007/api/topranking/new-user-topranking`);
+    return res.status(200).json({ data: response.data });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+    }); 
+  }
+};
 module.exports={
-    sumtopranking,topranking,FindTopic_sub
+    sumtopranking,topranking,FindTopic_sub,Topranking_New
 }

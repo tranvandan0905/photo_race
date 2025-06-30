@@ -8,7 +8,7 @@ const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../con
 const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser, updateAvataUser } = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission, deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
 const { login, register } = require("../controllers/auth.getway");
-const { topranking, sumtopranking, FindTopic_sub } = require("../controllers/topranking.gatway");
+const { topranking, sumtopranking, FindTopic_sub, Topranking_New } = require("../controllers/topranking.gatway");
 // Submission 
 routeAPI.post('/submission',authenticateToken,upload.single("file"),postsubmission);
 routeAPI.get('/submission',getsubmission);
@@ -56,7 +56,8 @@ routeAPI.get('/votesubmissions/check/:submission_id',authenticateToken, findVote
 //Topranking
 routeAPI.get('/topranking',topranking);
 routeAPI.get('/topranking/toprank',sumtopranking);
-routeAPI.get('/topranking-topic/:topic_id', FindTopic_sub);
+routeAPI.get('/topranking-topic/:topic_id', FindTopic_sub); 
+routeAPI.get('/topranking/new-user-topranking',Topranking_New); 
 module.exports = routeAPI;
 
 
