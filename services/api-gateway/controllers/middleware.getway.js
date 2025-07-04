@@ -14,5 +14,17 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+const authenticateTokenAds = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-module.exports = authenticateToken;
+    if (!token) {
+        return res.status(401).json({ message: "Vui lòng đăng nhập!" });
+    }
+    jwt.verify(token,"me_secret_key_here", (err, ads) => {
+        if (err) return res.status(403).json({ message: "Vui lòng đăng nhập!" });
+        req.ads = ads;
+        next();
+    });
+};
+module.exports = {authenticateToken,authenticateTokenAds};

@@ -37,4 +37,34 @@ const register = async (req, res) => {
     });
   }
 };
-module.exports = { login,register };
+const loginAds = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      let response;
+      response = await axios.post('http://auth-service:3008/api/auth/loginAds', {
+        email,
+        password
+      });
+      return res.status(200).json({
+        message: "Đăng nhập thành công!",
+        token: response.data.token
+      });
+    } catch (error) {
+      return res.status(401).json({
+        message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
+      });
+    }
+};
+const registerAds = async (req, res) => {
+  try {
+    const response = await axios.post('http://ad-service:3009/api/ad/advertisers',req.body);
+    return res.status(200).json({
+      message: response.data.message,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
+    });
+  }
+};
+module.exports = { login,register,loginAds ,registerAds};

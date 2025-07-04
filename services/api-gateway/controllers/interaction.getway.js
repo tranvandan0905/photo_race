@@ -18,7 +18,7 @@ module.exports = {
                         return {
                             ...comment,
                             user_name: user?.name || "Unknown",
-                            avatar: user?.avatar || null,
+                            avatar: user?.image || null,
                         };
                     } catch (userErr) {
                         return {

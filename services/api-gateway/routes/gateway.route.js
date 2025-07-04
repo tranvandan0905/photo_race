@@ -2,13 +2,14 @@ const express = require("express");
 const routeAPI = express.Router();
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-const authenticateToken = require('../controllers/middleware.getway');
+const {authenticateToken,authenticateTokenAds} = require('../controllers/middleware.getway');
 const {postsubmission,getsubmission,FindsubTopic} = require('../controllers/submission.getway');
 const {  getTopic,postTopic,updateTopic, deleteTopic, findTopic}=require("../controllers/topic.getway");
 const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postUser, findNameUser, updateAvataUser } = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission, deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
-const { login, register } = require("../controllers/auth.getway");
+const { login, register, loginAds, registerAds } = require("../controllers/auth.getway");
 const { topranking, sumtopranking, FindTopic_sub, Topranking_New } = require("../controllers/topranking.gatway");
+const { PostAdvertiser, GetAdvertisers, DeleteAdvertiser, PostAd, GetAds, GetAdsByAdvertiser, GetActiveAds } = require("../controllers/ad.getway");
 // Submission 
 routeAPI.post('/submission',authenticateToken,upload.single("file"),postsubmission);
 routeAPI.get('/submission',getsubmission);
@@ -16,6 +17,8 @@ routeAPI.get('/submission/FindsubmissionTopic/:topic_id',FindsubTopic);
 // Auth
 routeAPI.post('/login',login);
 routeAPI.post('/register',register);
+routeAPI.post('/loginAds',loginAds);
+routeAPI.post('/registerAds',registerAds);
 // Topic 
 routeAPI.get('/topic',getTopic);
 routeAPI.post('/topic',postTopic);
@@ -25,7 +28,7 @@ routeAPI.get('/topic/find', findTopic);
 // User
 routeAPI.get('/user',getUser);
 routeAPI.post('/user',postUser);
-routeAPI.delete('/user/:id', deleteUser);
+routeAPI.delete('/user',authenticateToken,deleteUser);
 routeAPI.put('/user',authenticateToken,updateUser);
 routeAPI.put('/user/Avata',authenticateToken,upload.single("file"),updateAvataUser);
 routeAPI.get('/user/findID',authenticateToken, findUserById);
@@ -58,6 +61,16 @@ routeAPI.get('/topranking',topranking);
 routeAPI.get('/topranking/toprank',sumtopranking);
 routeAPI.get('/topranking-topic/:topic_id', FindTopic_sub); 
 routeAPI.get('/topranking/new-user-topranking',Topranking_New); 
+// ad
+//advertisers
+routeAPI.post('/advertisers',PostAdvertiser)
+routeAPI.get('/advertisers',GetAdvertisers);
+routeAPI.delete('/advertisers/:id',DeleteAdvertiser);
+//ads
+routeAPI.post('/ads',authenticateTokenAds,PostAd)
+routeAPI.get('/ads',GetAds);
+routeAPI.get('/ads/byAdvertiser',authenticateTokenAds,GetAdsByAdvertiser);
+routeAPI.get('/ads/activeAds',GetActiveAds);
 module.exports = routeAPI;
 
 

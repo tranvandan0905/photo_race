@@ -2,7 +2,10 @@ const axios = require('axios');
 const FormData = require('form-data');
 const getUser = async (req, res) => {
   try {
-    const response = await axios.get('http://user-service:3003/api/user');
+    const { check } = req.query;
+    const response = await axios.get('http://user-service:3003/api/user', {
+      params: { check },
+    });
     return res.status(200).json({ data: response.data });
   } catch (error) {
     return res.status(400).json({
@@ -40,9 +43,9 @@ const findNameUser = async (req, res) => {
 };
 const deleteUser = async (req, res) => {
   try {
-    const user_id = req.params.id;
+     const user_id = req.user.id;
     await axios.delete(`http://user-service:3003/api/user/${user_id}`);
-    return res.status(200).json({ message: "Xoá thành công!" });
+    return res.status(200).json({ message: "Vô hiệu hóa thành công!" });
   } catch (err) {
     return res.status(400).json({
       message: err.response?.data?.message || "Có lỗi xảy ra khi gọi API!"

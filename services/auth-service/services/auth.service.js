@@ -29,6 +29,32 @@ const handelogin = async (email, password) => {
 
     return { error: false, token, user };
 };
+const handeloginaAds = async (email, password) => {
+    const response = await axios.get("http://ad-service:3009/api/ad/advertisers/find", {
+        params: { email },
+        timeout: 3000
+      });      
+       const ads = response.data?.data;
+    if (!ads) {
+        throw new Error("Tài khoản của quý khách không tồn tại!");
+    }
 
-module.exports = { handelogin };
+    const isMatch = await bcrypt.compare(password, ads.password);
+    if (!isMatch) {
+        throw new Error("Sai mật khẩu!");
+    }
+
+    if (!process.env.JWT_SECRET_Ads) {
+        throw new Error("Lỗi cấu hình server: JWT_SECRET bị thiếu!");
+    }
+
+    const token = jwt.sign(
+        { id: ads._id, name: ads.name},
+        process.env.JWT_SECRET_Ads,
+        { expiresIn: "1d" }
+    );
+
+    return { error: false, token, ads };
+};
+module.exports = { handelogin,handeloginaAds };
 

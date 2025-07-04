@@ -137,7 +137,6 @@ const handleSumTopRanking = async () => {
     return Toprank;
 };
 const getTopranking = async (submission_id) => {
-    // Trả về danh sách các bản ghi topranking theo submission_id
     return await topranking.findOne({ submission_id });
 };
 
@@ -170,7 +169,7 @@ const handeFindTopic_sub = async (topic_id) => {
         return [];
     }
 };
-const handeTopranking_New = async (topic_id) => {
+const handeTopranking_New = async () => {
     try {
         const lastTopic = await getLastTopic();
         const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${lastTopic.topic_id}`);

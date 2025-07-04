@@ -1,4 +1,4 @@
-const { handelogin } = require("../services/auth.service");
+const { handelogin, handeloginaAds } = require("../services/auth.service");
 
 const loginPages = async (req, res) => {
     try {
@@ -15,6 +15,21 @@ const loginPages = async (req, res) => {
         });
     }
 };
-
-module.exports = { loginPages };
+const loginAds = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const result = await handeloginaAds(email, password); 
+        res.json({ 
+            message: "Đăng nhập thành công!", 
+            token: result.token ,
+        
+        });
+    
+    } catch (error) {
+        res.status(500).json({
+            message: error.message || 'Đăng nhập thất bại!',
+        });
+    }
+};
+module.exports = { loginPages,loginAds };
 

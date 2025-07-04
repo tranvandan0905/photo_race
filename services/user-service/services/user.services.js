@@ -25,13 +25,13 @@ const handleemailconfirmation = async (email, name, password) => {
 
   const token = crypto.randomUUID();
   fakeDB.push({ email, password, name, token, verified: false });
- await sendVerificationEmail(email, token);
-return 'Gửi email xác nhận thành công!';
+  await sendVerificationEmail(email, token);
+  return 'Gửi email xác nhận thành công!';
 
 
 };
 const findUserWithAnyStatus = async (email) => {
-  return await users.collection.findOne({ email }); 
+  return await users.collection.findOne({ email });
 };
 const handleverifyUser = async (token) => {
   const user = fakeDB.find(u => u.token === token);
@@ -79,7 +79,7 @@ const handleDeleteUser = async (_id) => {
   return user;
 };
 const handleUpdateUser = async (data, _id) => {
-  const { name, password, xu, role, check_email, imageUrl } = data;
+  const { name, password, passwordnew, xu, role, check_email, imageUrl } = data;
 
   if (!_id) {
     throw new Error("Thiếu ID người dùng!");
@@ -97,15 +97,24 @@ const handleUpdateUser = async (data, _id) => {
     check_email: check_email !== undefined ? check_email : userid.check_email,
     image: imageUrl || userid.image,
   };
+  if (passwordnew && !imageUrl) {
+    if (!password) {
+      throw new Error("Bạn phải nhập mật khẩu hiện tại để đổi mật khẩu mới!");
+    }
 
-  if (password) {
-    updateData.password = await bcrypt.hash(password, 10);
+    const isMatch = await bcrypt.compare(password, userid.password_hash);
+    if (!isMatch) {
+      throw new Error("Mật khẩu cũ không chính xác!");
+    }
+
+    updateData.password_hash = await bcrypt.hash(passwordnew, 10);
   }
 
   const result = await users.updateOne({ _id }, { $set: updateData });
 
   return result;
 };
+
 const handleFindIDUser = async (_id) => {
   if (!_id) {
     throw new Error("Thiếu ID người dùng!");
@@ -121,9 +130,21 @@ const handeFindUser = async (email) => {
   if (!email) {
     throw new Error("Thiếu email người dùng!");
   }
-  const user = await users.findOne({ email });
+
+  let user = await users.findOneWithDeleted({ email });
+
+  if (!user) {
+    throw new Error("Không tìm thấy người dùng!");
+  }
+
+  if (user.deleted) {
+    await user.restore();
+    user = await users.findOne({ email });
+  }
+
   return user;
-}
+};
+
 const handleFindNameUser = async (name) => {
   if (!name) {
     throw new Error("Thiếu name người dùng!");
