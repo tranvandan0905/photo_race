@@ -4,6 +4,7 @@ const {
   handleGetAdvertisers,
   handeFindadver,
   handelUpdateadver,
+  handeFindadverID,
 } = require("../services/ad.services");
 
 const PostAdvertiser = async (req, res) => {
@@ -59,7 +60,21 @@ const findadver = async (req, res) => {
   } catch (err) {
     return res.status(400).json({
       data: [],
-      message: err.message || "Có lỗi xảy ra!",
+      message: error.message || "Có lỗi xảy ra!",
+    });
+  }
+}
+const findadverID = async (req, res) => {
+  try {
+    const id=req.params.id;
+    const ads = await handeFindadverID(id);
+    return res.status(200).json({
+      data: ads
+    });
+  } catch (error) {
+    return res.status(400).json({
+      data: [],
+      message: error.message || "Có lỗi xảy ra!",
     });
   }
 }
@@ -75,7 +90,7 @@ const Updateadver = async (req,res) => {
   } catch (error) {
     return res.status(400).json({
       data: [],
-      message: err.message || "Có lỗi sảy ra!",
+      message: error.message || "Có lỗi sảy ra!",
     })
   }
 }
@@ -85,5 +100,6 @@ module.exports = {
   DeleteAdvertiser,
   GetAdvertisers,
   findadver,
-  Updateadver
+  Updateadver,
+  findadverID
 };

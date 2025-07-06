@@ -187,6 +187,13 @@ const updateExpiredAds = async () => {
     );
 };
 
+const handeFindadverID = async (_id) => {
+    if (!_id) {
+        throw new Error("Thiếu ID người dùng!");
+    }
+    const user = await Advertiser.findOne({ _id });
+    return user;
+}
 const handeFindadver = async (email) => {
     if (!email) {
         throw new Error("Thiếu email người dùng!");
@@ -195,53 +202,117 @@ const handeFindadver = async (email) => {
     return user;
 }
 const handelUpdateadver = async (_id, data) => {
-  const { password, phone, email, name, passwordnew } = data;
+    const { password, phone, email, name, passwordnew, company_name, website } = data;
 
-  if (!_id) throw new Error("Thiếu ID!");
+    if (!_id) throw new Error("Thiếu ID!");
 
-  const adver = await Advertiser.findOne({ _id });
-  if (!adver) throw new Error("Adver không tồn tại!");
+    const adver = await Advertiser.findOne({ _id });
+    if (!adver) throw new Error("Adver không tồn tại!");
 
-  const isMatch = await bcrypt.compare(password, adver.password);
-  if (!isMatch) throw new Error("Mật khẩu cũ không chính xác!");
+    const isMatch = await bcrypt.compare(password, adver.password);
+    if (!isMatch) throw new Error("Mật khẩu cũ không chính xác!");
 
-  let password_hash = adver.password;
-  if (passwordnew) {
-    password_hash = await bcrypt.hash(passwordnew, 10);
-  }
+    let password_hash = adver.password;
+    if (passwordnew) {
+        password_hash = await bcrypt.hash(passwordnew, 10);
+    }
 
-  const updateData = {
-    name: name ?? adver.name,
-    password: password_hash,
-    phone: phone ?? adver.phone,
-    email: email ?? adver.email,
-  };
+    const updateData = {
+        name: name ?? adver.name,
+        password: password_hash,
+        phone: phone ?? adver.phone,
+        email: email ?? adver.email,
+        company_name: company_name ?? adver.company_name,
+        website: website ?? adver.website
+    };
 
-  await Advertiser.updateOne({ _id }, { $set: updateData });
-  const updated = await Advertiser.findById(_id);
-  return updated;
+    await Advertiser.updateOne({ _id }, { $set: updateData });
+    const updated = await Advertiser.findById(_id);
+    return updated;
 };
 const handelUpdateAdFields = async (_id, data) => {
-  const { start_date, end_date, is_extendable, status } = data;
+    const { start_date, end_date, is_extendable, status } = data;
 
-  if (!_id) throw new Error("Thiếu ID quảng cáo!");
+    if (!_id) throw new Error("Thiếu ID quảng cáo!");
 
-  const ad = await Ad.findById(_id);
-  if (!ad) throw new Error("Không tìm thấy quảng cáo!");
+    const ad = await Ad.findById(_id);
+    if (!ad) throw new Error("Không tìm thấy quảng cáo!");
 
-  const updateData = {};
+    let startDate = start_date ? normalizeDate(start_date) : ad.start_date;
+    let endDate = end_date ? normalizeDate(end_date) : ad.end_date;
 
-  if (start_date) updateData.start_date = new Date(start_date);
-  if (end_date) updateData.end_date = new Date(end_date);
-  if (typeof is_extendable === "boolean") updateData.is_extendable = is_extendable;
-  if (["pending", "active", "completed", "rejected"].includes(status)) {
-    updateData.status = status;
-  }
+    const isUpdatingTime = !!start_date || !!end_date;
 
-  await Ad.updateOne({ _id }, { $set: updateData });
+    if (isUpdatingTime) {
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            throw new Error("Ngày bắt đầu hoặc kết thúc không hợp lệ.");
+        }
 
-  const updatedAd = await Ad.findById(_id);
-  return updatedAd;
+        const tomorrow = new Date();
+        tomorrow.setHours(0, 0, 0, 0);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        if (startDate < tomorrow) {
+            throw new Error("Ngày bắt đầu phải từ ngày hôm sau trở đi.");
+        }
+
+        if (endDate < startDate) {
+            throw new Error("Ngày kết thúc phải sau ngày bắt đầu.");
+        }
+
+        const overlappedAds = await Ad.find({
+            _id: { $ne: _id },
+            start_date: { $lte: endDate },
+            end_date: { $gte: startDate },
+        });
+
+        const dayMap = {};
+        for (const adItem of overlappedAds) {
+            let current = normalizeDate(adItem.start_date);
+            const adEnd = normalizeDate(adItem.end_date);
+            while (current <= adEnd) {
+                const key = current.toISOString().split("T")[0];
+                dayMap[key] = (dayMap[key] || 0) + 1;
+                current.setDate(current.getDate() + 1);
+            }
+        }
+
+        const checkDate = new Date(startDate);
+        while (checkDate <= endDate) {
+            const key = checkDate.toISOString().split("T")[0];
+            if ((dayMap[key] || 0) >= 3) {
+                throw new Error(`Ngày ${key} đã đủ 3 quảng cáo. Vui lòng chọn khoảng khác.`);
+            }
+            checkDate.setDate(checkDate.getDate() + 1);
+        }
+    }
+
+    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    const price_per_day = Number(process.env.AD_PRICE_PER_DAY || 200000);
+    const total_cost = days * price_per_day;
+
+    const updateData = {
+        start_date: startDate,
+        end_date: endDate,
+        total_cost,
+    };
+
+    // Nếu đang cập nhật thời gian → reset status và is_extendable
+    if (isUpdatingTime) {
+        updateData.status = "pending";
+        updateData.is_extendable = false;
+    } else {
+        // Nếu không cập nhật ngày thì cho phép update từ data
+        if (typeof is_extendable === "boolean") updateData.is_extendable = is_extendable;
+        if (["pending", "active", "completed", "rejected"].includes(status)) {
+            updateData.status = status;
+        }
+    }
+
+    await Ad.updateOne({ _id }, { $set: updateData });
+    return await Ad.findById(_id);
 };
 
-module.exports = {handelUpdateAdFields,handelUpdateadver, handleGetActiveAds, handleCreateAdvertiser, handleDeleteAdvertiser, handleGetAdvertisers, handleCreateAd, handleGetAllAds, handleGetAdsByAdvertiser, handeFindadver };
+
+
+module.exports = {handeFindadverID, handelUpdateAdFields, handelUpdateadver, handleGetActiveAds, handleCreateAdvertiser, handleDeleteAdvertiser, handleGetAdvertisers, handleCreateAd, handleGetAllAds, handleGetAdsByAdvertiser, handeFindadver };

@@ -197,9 +197,41 @@ const handeCancelVoteXU = async (_id) => {
 
   return result;
 }
+const handeUpdateXU = async (_id, data) => {
+  if (!_id) throw new Error("Thiếu ID");
 
+  const { amount, check } = data;
 
+  if (!["DepositRequest", "WithdrawRequest"].includes(check)) {
+    throw new Error("Loại giao dịch không hợp lệ");
+  }
+
+  const user = await handleFindIDUser(_id);
+  if (!user) throw new Error("Không tìm thấy user");
+
+  let newXu;
+
+  if (check === "DepositRequest") {
+    newXu = user.xu + amount;
+  } else {
+    if (user.xu < amount) {
+      throw new Error("Số dư không đủ để rút");
+    }
+    newXu = user.xu - amount;
+  }
+
+  const result = await users.updateOne(
+    { _id },
+    { $set: { xu: newXu } }
+  );
+
+  if (result.matchedCount === 0) {
+    throw new Error("Không thể cập nhật xu");
+  }
+
+  return { success: true, xu: newXu };
+};
 
 module.exports = {
-  handleverifyUser, handleemailconfirmation, handlePostUser, handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU, handeCancelVoteXU
+  handeUpdateXU, handleverifyUser, handleemailconfirmation, handlePostUser, handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU, handeCancelVoteXU
 };

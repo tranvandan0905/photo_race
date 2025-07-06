@@ -68,6 +68,13 @@ services:
       dockerfile: docker/ad-service.Dockerfile
     ports:
       - "3009:3009"
+  banking-service:
+    container_name: banking-service
+    build:
+      context: .
+      dockerfile: docker/banking-service.Dockerfile
+    ports:
+      - "3010:3010"
   media-service:
     container_name: media-service
     build:

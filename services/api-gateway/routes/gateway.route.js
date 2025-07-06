@@ -9,7 +9,8 @@ const {  getUser,findUser,deleteUser, updateUser,findUserById,patchVoteXu, postU
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment, patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission, deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
 const { login, register, loginAds, registerAds } = require("../controllers/auth.getway");
 const { topranking, sumtopranking, FindTopic_sub, Topranking_New } = require("../controllers/topranking.gatway");
-const { PostAdvertiser, GetAdvertisers, DeleteAdvertiser, PostAd, GetAds, GetAdsByAdvertiser, GetActiveAds } = require("../controllers/ad.getway");
+const { PostAdvertiser, GetAdvertisers, DeleteAdvertiser, PostAd, GetAds, GetAdsByAdvertiser, GetActiveAds, UpdateAds, Updateadver, FindverID } = require("../controllers/ad.getway");
+const { bankingMoMo } = require("../controllers/banking.getway");
 // Submission 
 routeAPI.post('/submission',authenticateToken,upload.single("file"),postsubmission);
 routeAPI.get('/submission',getsubmission);
@@ -65,12 +66,17 @@ routeAPI.get('/topranking/new-user-topranking',Topranking_New);
 //advertisers
 routeAPI.post('/advertisers',PostAdvertiser)
 routeAPI.get('/advertisers',GetAdvertisers);
+routeAPI.get('/advertisersID',authenticateTokenAds,FindverID);
 routeAPI.delete('/advertisers/:id',DeleteAdvertiser);
+routeAPI.put('/advertisers',authenticateTokenAds,Updateadver);
 //ads
 routeAPI.post('/ads',authenticateTokenAds,PostAd)
 routeAPI.get('/ads',GetAds);
+routeAPI.put('/ads/update/:id',authenticateTokenAds,UpdateAds);
 routeAPI.get('/ads/byAdvertiser',authenticateTokenAds,GetAdsByAdvertiser);
 routeAPI.get('/ads/activeAds',GetActiveAds);
+//banking
+routeAPI.post('/banking',authenticateToken,bankingMoMo)
 module.exports = routeAPI;
 
 

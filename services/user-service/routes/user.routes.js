@@ -1,10 +1,11 @@
 const express = require("express");
 const routeAPI=express.Router();
-const {getuser,postuser, deleteduser, updateuser, FindIDuser, findUser, PatchVoteXU, CancelVoteXu, findNameUser, emailconfirmation, verifyUser}=require("../controllers/user.controller");
+const {getuser,postuser, deleteduser, updateuser, FindIDuser, findUser, PatchVoteXU, CancelVoteXu, findNameUser, emailconfirmation, verifyUser, updateXU}=require("../controllers/user.controller");
 routeAPI.get('/',getuser);
 routeAPI.post('/',postuser);
 routeAPI.delete('/:id', deleteduser);
 routeAPI.put('/:id',updateuser);
+routeAPI.put('/banking/:id',updateXU);
 routeAPI.get('/findID/:id', FindIDuser);
 routeAPI.get('/find', findUser);
 routeAPI.get('/find/name', findNameUser);

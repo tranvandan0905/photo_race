@@ -1,5 +1,5 @@
 
-const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser } = require("../services/user.services");
+const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser, handeUpdateXU } = require("../services/user.services");
 const { sendVerificationEmail } = require('./email.controller');
 
 module.exports = {
@@ -161,6 +161,21 @@ module.exports = {
             const check_email = await handleverifyUser(token);
             return res.status(200).json({
                 data: check_email
+            });
+        } catch (err) {
+            return res.status(400).json({
+            
+                message: err.message || "Có lỗi xảy ra!",
+            });
+        }
+    },
+    updateXU: async (req,res)=>{
+        
+          try {
+            const _id = req.params.id;
+            const data = await handeUpdateXU(_id,req.body);
+            return res.status(200).json({
+                data: data
             });
         } catch (err) {
             return res.status(400).json({
