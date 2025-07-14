@@ -7,7 +7,8 @@ const handletopranking = async () => {
     }
     if (!isInVoteTime(lastTopic)) {
         throw new Error("Thời gian chử đề còn thời gian !");
-    }
+    };
+    const ID_Topic = lastTopic._id;
     const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${ID_Topic}`);
     const submissions = response.data?.data || [];
     const submissionsWithUser = await Promise.all(
@@ -36,7 +37,6 @@ const handletopranking = async () => {
                     vote: totalVotes,
                 };
             } catch (userErr) {
-                // Nếu có lỗi khi lấy thông tin user, trả về thông tin mặc định
                 return {
                     ...post,
                     user_name: "Unknown",
@@ -55,11 +55,13 @@ const handletopranking = async () => {
 
         if (!userScores[userId]) {
             userScores[userId] = {
+                topic_id: sub.topic_id,
                 user_id: userId,
                 name: sub.user_name,
                 avatar: sub.avatar,
                 score: 0,
-                submission_id: sub._id
+                submission_id: sub._id,
+                submitted_at: sub.submitted_at
             };
         }
 
@@ -67,16 +69,25 @@ const handletopranking = async () => {
     });
 
     const topUsers = Object.values(userScores)
-        .sort((a, b) => b.score - a.score)
+        .sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score; // điểm cao đứng trước
+            } else {
+                // Nếu bằng điểm → ai đăng trước thì đứng trước
+                return new Date(a.submitted_at) - new Date(b.submitted_at);
+            }
+        })
+
         .slice(0, 3);
 
     for (const sub of topUsers) {
         const existed = await topranking.findOne({
             submission_id: sub.submission_id,
-            user_id: sub.user_id
+            user_id: sub.user_id,
+            topic_id: sub.topic_id
         });
         if (!existed) {
-            await handleposttopranking(sub.user_id, sub.submission_id, sub.score);
+            await handleposttopranking(sub.user_id, sub.submission_id, sub.score, sub.topic_id);
         }
     }
 
@@ -89,11 +100,12 @@ const getLastTopic = async () => {
     return response.data?.data?.at(-1);
 };
 
-const handleposttopranking = async (user_id, submission_id, total_score) => {
+const handleposttopranking = async (user_id, submission_id, total_score, topic_id) => {
     const newtopranking = await topranking.create({
         user_id,
         submission_id,
-        total_score
+        total_score,
+        topic_id
     })
     return newtopranking;
 };
@@ -111,7 +123,7 @@ const handleSumTopRanking = async () => {
             }
         },
         {
-            $sort: { totalScore: -1 } // nếu bạn muốn sắp xếp từ cao xuống
+            $sort: { totalScore: -1 } // sắp xếp từ cao xuống
         }
     ])
     const Toprank = await Promise.all(
@@ -126,7 +138,6 @@ const handleSumTopRanking = async () => {
                     avatar: user?.image || null,
                 };
             } catch (userErr) {
-                // Nếu có lỗi khi lấy thông tin user, trả về thông tin mặc định
                 return {
                     ...post,
                     user_name: "Unknown",
@@ -139,7 +150,12 @@ const handleSumTopRanking = async () => {
 const getTopranking = async (submission_id) => {
     return await topranking.findOne({ submission_id });
 };
-
+const deleteSubTopranking = async (submission_id) => {
+    return await topranking.deleteOne({ submission_id });
+};
+const getToprankingTopic = async (topic_id) => {
+  return await topranking.find({ topic_id }).lean();
+};
 const handeFindTopic_sub = async (topic_id) => {
     try {
         const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${topic_id}`);
@@ -172,23 +188,27 @@ const handeFindTopic_sub = async (topic_id) => {
 const handeTopranking_New = async () => {
     try {
         const lastTopic = await getLastTopic();
-        const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${lastTopic.topic_id}`);
-        const submissions = response.data?.data || [];
+        const response = await getToprankingTopic(lastTopic._id);
+        const submissions = response || [];
 
         const submissionsWithTopranking = await Promise.all(
             submissions.map(async (post) => {
                 try {
-                    const toprankings = await getTopranking(post._id);
-                    if (toprankings) {
+                    const userRes = await axios.get(`http://user-service:3003/api/user/findID/${post.user_id}`);
+                    const user = userRes.data?.data;
+                    if (user) {
                         return {
-                            submission: post,
-                            topranking: toprankings
+                            ...post,
+                            user_name: user?.name || "Unknown",
+                            avatar: user?.image || null,
+
                         };
                     }
                 } catch (err) {
                     return {
-                        submission: post,
-                        topranking: []
+                        ...post,
+                        user_name: "Unknown",
+                        avatar: null,
                     };
                 }
             })
@@ -200,4 +220,4 @@ const handeTopranking_New = async () => {
     }
 };
 
-module.exports = { handletopranking, handleSumTopRanking, handeFindTopic_sub ,handeTopranking_New} 
+module.exports = { handletopranking, handleSumTopRanking, handeFindTopic_sub, handeTopranking_New, deleteSubTopranking }

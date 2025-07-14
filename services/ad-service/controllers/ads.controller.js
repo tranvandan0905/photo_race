@@ -34,7 +34,7 @@ const GetAdsByAdvertiser = async (req, res) => {
   try {
     const advertiser_id = req.params.id;
     const ads = await handleGetAdsByAdvertiser(advertiser_id);
-    res.status(200).json({ data: ads });
+    res.status(200).json({ data: ads || []});
   } catch (error) {
     res.status(400).json({ message: error.message || "Lỗi khi lấy quảng cáo theo người đăng" });
   }

@@ -1,5 +1,5 @@
 
-const { handleGetSumLike, handePostlike, handeDeletelike, handefindlike } = require('../services/like.services');
+const { handleGetSumLike, handePostlike, handeDeletelike, handefindlike, deletelikeMany } = require('../services/like.services');
 module.exports = {
     getsumlike: async (req, res) => {
         try {
@@ -56,13 +56,30 @@ module.exports = {
             const { submission_id, user_id } = req.params;
             const result = await handefindlike(submission_id, user_id);
             return res.status(200).json({
-       
+
                 check: result,
             });
         } catch (error) {
             return res.status(500).json({
-      
+
                 check: false,
+                message: error.message || "Có lỗi xảy ra!",
+            });
+        }
+    },
+    deleteMany: async (req, res) => {
+        try {
+            const submission_id = req.params.submission_id;
+            const result = await deletelikeMany(submission_id);
+            return res.status(200).json({
+                data: result,
+                check: true
+
+            });
+        } catch (error) {
+            return res.status(500).json({
+
+
                 message: error.message || "Có lỗi xảy ra!",
             });
         }

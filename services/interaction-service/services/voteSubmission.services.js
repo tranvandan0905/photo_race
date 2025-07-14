@@ -89,8 +89,12 @@ const handeDeleteVoteSubmission = async (submission_id, user_id) => {
     };
 };
 const handefindVoteSub = async (submission_id, user_id) => {
-    if (!submission_id || !user_id) {
+    if (!submission_id) {
         throw new Error("Thiếu ID!");
+    }
+       if(!user_id)
+    {
+         return false;
     }
     const result = await VoteSubmission.findOne({ submission_id, user_id });
     if (result) {

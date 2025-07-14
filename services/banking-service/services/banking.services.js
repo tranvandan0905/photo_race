@@ -1,7 +1,6 @@
 const axios = require("axios");
 const DepositRequest = require("../models/depositRequest.model");
 const WithdrawRequest = require("../models/withdrawRequest.model");
-
 // Gọi API cập nhật xu cho user
 const updateXu = async (userId, data) => {
   const { amount, check } = data;
@@ -17,17 +16,20 @@ const updateXu = async (userId, data) => {
 
   return response.data;
 };
-
+const handlegetDepositRequest = async(user_id)=>{
+  const data= await DepositRequest.find({user_id});
+  return data;
+}
+const handlegetWithdrawRequest = async(user_id)=>{
+  const data= await WithdrawRequest.find({user_id});
+  return data;
+}
 // Nạp tiền thành công → tạo DepositRequest + cộng xu
-const handlePostDepositRequest = async ({ user_id, amount }) => {
+const handlePostDepositRequest = async (data) => {
+  const { user_id, amount }=data;
   if (!user_id || !amount) {
     throw new Error("Thiếu dữ liệu!");
   }
-
-  if (amount < 50000) {
-    throw new Error("Nạp tối thiểu 50.000 VND");
-  }
-
   const result = await DepositRequest.create({ user_id, amount, status: "success" });
 
   if (!result) throw new Error("Không thể tạo yêu cầu nạp tiền");
@@ -45,10 +47,6 @@ const handlePostDepositRequest = async ({ user_id, amount }) => {
 const handlePostWithdrawRequest = async ({ user_id, amount, targetAccountInfo }) => {
   if (!user_id || !amount || !targetAccountInfo) {
     throw new Error("Thiếu dữ liệu!");
-  }
-
-  if (amount < 100000) {
-    throw new Error("Rút tối thiểu 100.000 VND");
   }
 
   const result = await WithdrawRequest.create({
@@ -69,7 +67,11 @@ const handlePostWithdrawRequest = async ({ user_id, amount, targetAccountInfo })
   return updated;
 };
 
+
 module.exports = {
   handlePostDepositRequest,
-  handlePostWithdrawRequest
+  handlePostWithdrawRequest,
+  handlegetDepositRequest,
+  handlegetWithdrawRequest,
+  
 };

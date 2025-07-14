@@ -3,7 +3,7 @@ const { getsubmission,postsubmission, FindsubmissionTopic, deletesubmission, Fin
 const routeAPI=express.Router();
 routeAPI.get("/",getsubmission);
 routeAPI.post("/",postsubmission);
-routeAPI.delete('/:id',deletesubmission);
+routeAPI.delete('/:id/:user_id',deletesubmission);
 routeAPI.get('/findIDTopic/:topic_id/:user_id',FindsubmissionTopic);
 routeAPI.get('/FindsubmissionTopic/:topic_id',FindsubTopic);
 module.exports=routeAPI; 

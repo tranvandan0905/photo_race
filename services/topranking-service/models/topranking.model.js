@@ -10,8 +10,13 @@ const topRankingSchema = new Schema({
     type: String,
     required: true
   },
+
   total_score: {
     type: Number,
+    required: true
+  },
+    topic_id: {
+    type: String,
     required: true
   }
 });

@@ -21,7 +21,7 @@ const handePostlike = async (submission_id, user_id) => {
     return {
         isLiked: true,
         likeCount: likeCount,
-        wasLiked: !!existing 
+        wasLiked: !!existing
     };
 };
 const handeDeletelike = async (submission_id, user_id) => {
@@ -34,19 +34,25 @@ const handeDeletelike = async (submission_id, user_id) => {
     return {
         isLiked: false,
         likeCount: likeCount,
-        wasLiked: !!deleted 
+        wasLiked: !!deleted
     };
 };
 
 const handefindlike = async (submission_id, user_id) => {
-    if (!submission_id || !user_id) {
+    if (!submission_id ) {
         throw new Error("Thiếu ID!");
     }
-    const result = await like.findOne({ submission_id, user_id });
-    if(result)
+    if(!user_id)
     {
-         return true ;
+         return false;
+    }
+    const result = await like.findOne({ submission_id, user_id });
+    if (result) {
+        return true;
     }
     return false;
+};
+const deletelikeMany = async (submission_id) => {
+    return await like.deleteMany({ submission_id });
 }
-module.exports = { handleGetSumLike, handePostlike, handeDeletelike, handefindlike };
+module.exports = { handleGetSumLike, handePostlike, handeDeletelike, handefindlike ,deletelikeMany};

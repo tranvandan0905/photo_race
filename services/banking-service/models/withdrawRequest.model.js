@@ -6,7 +6,6 @@ const withdrawRequestSchema = new mongoose.Schema({
     required: true
   },
   amount: { type: Number, required: true },
-  targetAccountInfo: { type: String, required: true }, 
   status: {
     type: String,
     enum: ["pending", "success", "contact_support"],

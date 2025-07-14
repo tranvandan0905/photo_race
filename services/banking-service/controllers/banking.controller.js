@@ -1,9 +1,11 @@
-const { handlePostDepositRequest, handlePostWithdrawRequest } = require("../services/banking.services");
+const { handlePostDepositRequest, handlePostWithdrawRequest, handlegetDepositRequest, handlegetWithdrawRequest } = require("../services/banking.services");
 const postdepositRequet = async (req, res) => {
    try {
-      const data = await handlePostDepositRequest(req.body);
+      const data = req.body;
+      console.log(data);
+      const datanew = await handlePostDepositRequest(data);
       return res.status(200).json({
-         data: data,
+         data: datanew,
          message: "Xét banking thành công!"
       });
    } catch (error) {
@@ -25,4 +27,34 @@ const postwithdrawRequet = async (req, res) => {
       })
    }
 }
-module.exports={postdepositRequet,postwithdrawRequet};
+const GetDepositRequest = async (req, res) => {
+   try {
+      const user_id = req.params.id;
+      const data = await handlegetDepositRequest(user_id);
+      return res.status(200).json({
+         data: data,
+         message: "Lấy danh sách thành công!"
+
+      });
+   } catch (error) {
+      return res.status(400).json({
+         message: error.message || "Có lỗi xảy ra!"
+      })
+   }
+}
+const GetWithdrawRequest = async (req, res) => {
+   try {
+      const user_id = req.params.id;
+      const data = await handlegetWithdrawRequest(user_id);
+      return res.status(200).json({
+         data: data,
+         message: "Lấy danh sách thành công!"
+
+      });
+   } catch (error) {
+      return res.status(400).json({
+         message: error.message || "Có lỗi xảy ra!"
+      })
+   }
+}
+module.exports = { postdepositRequet, postwithdrawRequet, GetDepositRequest, GetWithdrawRequest };

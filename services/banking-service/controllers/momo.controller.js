@@ -1,11 +1,13 @@
 const axios = require("axios");
 const crypto = require("crypto");
+
+// Gửi yêu cầu tạo thanh toán MoMo
 const momo = async (req, res) => {
   try {
     const { xu, user_id } = req.body;
     const amount = parseInt(xu);
 
-    if (!user_id || !amount || isNaN(amount)) {
+    if (!user_id || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ message: "Thiếu hoặc sai dữ liệu đầu vào!" });
     }
 
@@ -14,7 +16,7 @@ const momo = async (req, res) => {
     const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
     const partnerCode = "MOMO";
     const orderInfo = "Thanh toán xu bằng MoMo";
-    const redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b"; 
+    const redirectUrl = "http://localhost:3000/banking/momo-success";
     const ipnUrl = "http://banking-service:3010/api/banking/momo/ipn";
     const requestType = "payWithMethod";
     const orderId = partnerCode + Date.now();
@@ -23,12 +25,8 @@ const momo = async (req, res) => {
     const autoCapture = true;
     const lang = "vi";
 
-    // Tạo chuỗi ký
     const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
-
-    const signature = crypto.createHmac("sha256", secretKey)
-      .update(rawSignature)
-      .digest("hex");
+    const signature = crypto.createHmac("sha256", secretKey).update(rawSignature).digest("hex");
 
     const requestBody = {
       partnerCode,
@@ -51,39 +49,41 @@ const momo = async (req, res) => {
     const option = {
       method: "POST",
       url: "https://test-payment.momo.vn/v2/gateway/api/create",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       data: requestBody
     };
 
-    const result = await axios(option);
-    return res.status(200).json(result.data);
+    const response = await axios(option);
+    if (response.data && response.data.resultCode === 0 && response.data.payUrl) {
+      await axios.post(ipnUrl, {
+        resultCode: 0,
+        user_id,
+        xu: amount
+      });
+    }
+
+    return res.status(200).json(response.data);
   } catch (error) {
-    console.error("MoMo Create Error:", error);
+    console.error("MoMo Create Error:", error.response?.data || error.message);
     return res.status(500).json({ message: "Lỗi gửi yêu cầu thanh toán MoMo" });
   }
 };
-
+// Xử lý IPN
 const handleMoMoIPN = async (req, res) => {
   try {
-    const { resultCode, extraData } = req.body;
+    const { resultCode, user_id, xu } = req.body;
 
-    if (resultCode !== 0) {
+    if (parseInt(resultCode) !== 0) {
       return res.status(400).json({ message: "MoMo thông báo thanh toán thất bại" });
     }
 
-    const decoded = JSON.parse(Buffer.from(extraData, "base64").toString("utf-8"));
-    const { user_id, xu } = decoded;
-
-    let amount = Math.floor(parseInt(xu) / 1000); // Quy đổi 1k = 1 xu
+    const amount = Math.floor(parseInt(xu) / 1000);
 
     if (!user_id || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ message: "Dữ liệu callback không hợp lệ hoặc số xu không đủ" });
     }
 
-    // Gửi yêu cầu lưu DepositRequest và cộng xu
-    const response = await axios.post("http://banking-service:5000/api/banking/depositrequest", {
+    const response = await axios.post("http://banking-service:3010/api/banking/depositrequest", {
       user_id,
       amount
     });
@@ -93,7 +93,7 @@ const handleMoMoIPN = async (req, res) => {
       data: response.data
     });
   } catch (err) {
-    console.error("MoMo IPN Error:", err.message);
+    console.error("MoMo IPN Error:", err.response?.data || err.message);
     return res.status(500).json({ message: "Lỗi xử lý IPN từ MoMo" });
   }
 };

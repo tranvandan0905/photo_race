@@ -1,5 +1,6 @@
 const Advertiser = require("../models/advertisers.model");
 const Ad = require("../models/ads.model");
+const adPayment = require("../models/adPayment.model");
 const bcrypt = require("bcrypt");
 const findAdvertiserByEmail = async (email) => {
     return await Advertiser.collection.findOne({ email });
@@ -139,9 +140,7 @@ const handleCreateAd = async (data) => {
     }
 
     //  Tính chi phí
-    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24) + 1);
-    const price_per_day = Number(process.env.AD_PRICE_PER_DAY || 200000);
-    const total_cost = days * price_per_day;
+
 
     // Tạo quảng cáo
     const newAd = await Ad.create({
@@ -150,10 +149,9 @@ const handleCreateAd = async (data) => {
         content,
         image_url,
         target_url,
-        price_per_day,
         start_date: startDate,
         end_date: endDate,
-        total_cost,
+
     });
 
     return newAd;
@@ -172,7 +170,8 @@ const handleGetActiveAds = async () => {
 };
 const handleGetAdsByAdvertiser = async (advertiser_id) => {
     await updateExpiredAds();
-    return await Ad.find({ advertiser_id });
+    const ads = await Ad.find({ advertiser_id }).lean();
+    return ads;
 };
 
 const updateExpiredAds = async () => {
@@ -231,7 +230,7 @@ const handelUpdateadver = async (_id, data) => {
     return updated;
 };
 const handelUpdateAdFields = async (_id, data) => {
-    const { start_date, end_date, is_extendable, status } = data;
+    const { start_date, end_date, status } = data;
 
     if (!_id) throw new Error("Thiếu ID quảng cáo!");
 
@@ -287,23 +286,15 @@ const handelUpdateAdFields = async (_id, data) => {
         }
     }
 
-    const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-    const price_per_day = Number(process.env.AD_PRICE_PER_DAY || 200000);
-    const total_cost = days * price_per_day;
-
     const updateData = {
         start_date: startDate,
         end_date: endDate,
-        total_cost,
     };
 
     // Nếu đang cập nhật thời gian → reset status và is_extendable
     if (isUpdatingTime) {
         updateData.status = "pending";
-        updateData.is_extendable = false;
     } else {
-        // Nếu không cập nhật ngày thì cho phép update từ data
-        if (typeof is_extendable === "boolean") updateData.is_extendable = is_extendable;
         if (["pending", "active", "completed", "rejected"].includes(status)) {
             updateData.status = status;
         }
@@ -315,4 +306,4 @@ const handelUpdateAdFields = async (_id, data) => {
 
 
 
-module.exports = {handeFindadverID, handelUpdateAdFields, handelUpdateadver, handleGetActiveAds, handleCreateAdvertiser, handleDeleteAdvertiser, handleGetAdvertisers, handleCreateAd, handleGetAllAds, handleGetAdsByAdvertiser, handeFindadver };
+module.exports = { handeFindadverID, handelUpdateAdFields, handelUpdateadver, handleGetActiveAds, handleCreateAdvertiser, handleDeleteAdvertiser, handleGetAdvertisers, handleCreateAd, handleGetAllAds, handleGetAdsByAdvertiser, handeFindadver };

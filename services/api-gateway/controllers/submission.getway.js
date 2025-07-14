@@ -1,5 +1,63 @@
 const axios = require('axios');
 const FormData = require('form-data');
+const leoProfanity = require("leo-profanity");
+leoProfanity.add([
+  "địt",
+  "đụ",
+  "lồn",
+  "buồi",
+  "cặc",
+  "cứt",
+  "chym",
+  "chịch",
+  "nứng",
+  "bú",
+  "liếm",
+  "bú lol",
+  "bú lồn",
+  "thẩm du",
+  "quay tay",
+  "thủ dâm",
+  "dâm đãng",
+  "lõa lồ",
+  "dâm dục",
+  "hiếp",
+  "hiếp dâm",
+  "vãi",
+  "vl",
+  "vcl",
+  "dm",
+  "đm",
+  "dmm",
+  "đmm",
+  "mẹ mày",
+  "mày chết",
+  "mẹ kiếp",
+  "đồ chó",
+  "thằng chó",
+  "con chó",
+  "mẹ cha",
+  "thằng ngu",
+  "con ngu",
+  "óc chó",
+  "óc lợn",
+  "đần độn",
+  "fuck",
+  "shit",
+  "bitch",
+  "bastard",
+  "dick",
+  "pussy",
+  "slut",
+  "asshole",
+  "fucking",
+  "motherfucker"
+]);
+
+const isProfane = (text) => {
+    return leoProfanity.check(text.toLowerCase());
+};
+
 const postsubmission = async (req, res) => {
   try {
     const title = req.body.title;
@@ -7,6 +65,12 @@ const postsubmission = async (req, res) => {
     const image = req.file;
     if (!title || !image || !user_id) {
       throw new Error("Vui lòng điền đầy đủ thông tin!");
+    }
+    if (isProfane(title)) {
+      return res.status(400).json({
+        errorCode: 1,
+        message: "Tiêu đề chứa từ ngữ không phù hợp!",
+      });
     }
     // Lấy topic đã vote của user
     let votetopic;
@@ -21,15 +85,11 @@ const postsubmission = async (req, res) => {
     if (!topic_id) {
       throw new Error("Không tìm thấy topic đã vote!");
     }
-    try {
+  
       const checktopic = await axios.get(`http://submission-service:3005/api/submission/findIDTopic/${topic_id}/${user_id}`);
-      if (checktopic.data.check) {
+      if (checktopic.data.check==true) {
         throw new Error(checktopic.data.message);
       }
-
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Không thể kiểm tra bài submission!");
-    }
     const form = new FormData();
     form.append("file", image.buffer, { filename: image.originalname, contentType: image.mimetype });
 
@@ -66,12 +126,13 @@ const postsubmission = async (req, res) => {
 const getsubmission = async (req, res) => {
   try {
     const user_id = req.query.user_id;
-    const response = await axios.get(`http://submission-service:3005/api/submission`, {
+    const submissions = await axios.get(`http://submission-service:3005/api/submission`, {
       params: user_id ? { user_id } : {},
     });
-    const submissions = response.data?.data || [];
+    const sub = submissions?.data || [];
+
     const submissionsWithUser = await Promise.all(
-      submissions.map(async (post) => {
+      sub.data.map(async (post) => {
         try {
           // Lấy thông tin người dùng
           const userRes = await axios.get(`http://user-service:3003/api/user/findID/${post.user_id}`);
@@ -96,7 +157,7 @@ const getsubmission = async (req, res) => {
             vote: totalVotes,
           };
         } catch (userErr) {
-          // Nếu có lỗi khi lấy thông tin user, trả về thông tin mặc định
+
           return {
             ...post,
             user_name: "Unknown",
@@ -107,8 +168,7 @@ const getsubmission = async (req, res) => {
           };
         }
       })
-    );
-
+    )
     return res.status(200).json({
       errorCode: 0,
       data: submissionsWithUser,
@@ -131,5 +191,17 @@ const FindsubTopic = async (req, res) => {
       message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
     });
   }
-}; 
-module.exports = { postsubmission, getsubmission,FindsubTopic };
+};
+const deletesubmission = async (req, res) => {
+  try {
+    const id = req.user.id;
+    const id_sub = req.params.id;
+    const response = await axios.delete(`http://submission-service:3005/api/submission/${id_sub}/${id}`);
+    return res.status(200).json({ data: response.data });
+  } catch (error) {
+    return res.status(400).json({
+      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+    });
+  }
+};
+module.exports = { isProfane, postsubmission, getsubmission, FindsubTopic, deletesubmission };

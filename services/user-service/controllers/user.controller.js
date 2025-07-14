@@ -1,108 +1,77 @@
 
-const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser, handeUpdateXU } = require("../services/user.services");
-const { sendVerificationEmail } = require('./email.controller');
-
+const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser, handeUpdateXU, handleemailpassword, handleverifyForgotPassword } = require("../services/user.services");
+const { success } = require("../utils/response.util");
 module.exports = {
-    getuser: async (req, res) => {
+    getuser: async (req, res,next) => {
         try {
             const { check } = req.query;
             const data = await handGetUser(check);
-            return res.status(200).json({
-                data: data,
-                message: "Lấy user thành công!"
-            });
+            return res.status(200).json(success(data, "Lấy user thành công!"));
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!',
-            });
+            next(error); 
         }
     },
-    postuser: async (req, res) => {
+    postuser: async (req, res,next) => {
 
         try {
             const { email, name, password } = req.body;
             const user = await handlePostUser({ email, name, password });
-            return res.status(201).json({
-                data: user,
-                message: "Thêm thành công!"
-            })
+            return res.status(201).json(success(user,"Thêm user thành công!"))
 
         } catch (error) {
 
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!',
-            });
+           next(error);
         }
     },
-    deleteduser: async (req, res) => {
+    deleteduser: async (req, res,next) => {
         try {
             const _id = req.params.id;
             const result = await handleDeleteUser(_id);
-            return res.status(204).json({
-                data: result,
-                message: "Xóa user thành công!"
-            })
+            return res.status(200).json(success(result,"Xóa user thành công!"))
 
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!',
-            })
+              next(error);
         }
     },
-    updateuser: async (req, res) => {
+    updateuser: async (req, res,next) => {
         try {
             const _id = req.params.id;
             const data = req.body;
             const result = await handleUpdateUser(data, _id);
-            return res.status(200).json({
-                data: result,
-                message: "Edit thành công!",
-            })
+            return res.status(200).json(success(result,"Edit thành công!")
+                
+            )
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!',
-            })
+           next(error);
         }
     },
-    FindIDuser: async (req, res) => {
+    FindIDuser: async (req, res,next) => {
         try {
             const _id = req.params.id;
             const result = await handleFindIDUser(_id);
-            return res.status(200).json({
-                data: result,
-                message: "Tìm kiếm thành công!",
-            });
+            return res.status(200).json(success(result,"Tìm kiếm thành công!"));
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || "Có lỗi xảy ra!",
-            });
+             next(error);
         }
     },
-    findUser: async (req, res) => {
+    findUser: async (req, res,next) => {
         try {
             const { email } = req.query;
             const user = await handeFindUser(email);
-            return res.status(200).json({
-                data: user
-            });
-        } catch (err) {
-            return res.status(400).json({
-                data: [],
-                message: err.message || "Có lỗi xảy ra!",
-            });
+            return res.status(200).json(success(user,"Tìm kiếm thành công!")
+               
+            );
+        } catch (error) {
+           next(error);
         }
     },
-    findNameUser: async (req, res) => {
+    findNameUser: async (req, res,next) => {
         try {
             const { name } = req.query;
             const user = await handleFindNameUser(name);
-            return res.status(200).json({
-                data: user
-            });
-        } catch (err) {
-            return res.status(400).json({
-                message: err.message || "Có lỗi xảy ra!",
-            });
+            return res.status(200).json(success(user,"Tìm kiếm người dùng theo tên thành công!"));
+        } catch (error) {
+          next(error);
         }
     },
     PatchVoteXU: async (req, res) => {
@@ -137,23 +106,28 @@ module.exports = {
     },
 
 
-    emailconfirmation: async (req, res) => {
+    emailconfirmation: async (req, res,next) => {
 
         try {
             const { email, name, password } = req.body;
-            const check_email = await handleemailconfirmation(email, name, password);
-            return res.status(200).json({
-                message:check_email
-            });
+            const message = await handleemailconfirmation(email, name, password);
+            return res.status(200).json(success(null,message));
         } catch (err) {
-            return res.status(400).json({
-              
-                message: err.message || "Có lỗi xảy ra!",
-            });
+            next(err)
         }
     },
 
-    verifyUser: async (req, res) => {
+    emailpassword: async (req, res,next) => {
+
+        try {
+            const { email } = req.body;
+            const message = await handleemailpassword(email);
+            return res.status(200).json(success(null,message));
+        } catch (err) {
+          next(err)
+        }
+    },
+    verifyUser: async (req, res,next) => {
 
         try {
             const { token } = req.query;
@@ -163,25 +137,30 @@ module.exports = {
                 data: check_email
             });
         } catch (err) {
-            return res.status(400).json({
-            
-                message: err.message || "Có lỗi xảy ra!",
-            });
+          next(err)
         }
     },
-    updateXU: async (req,res)=>{
-        
-          try {
-            const _id = req.params.id;
-            const data = await handeUpdateXU(_id,req.body);
+    verifyForgotPassword: async (req, res,next) => {
+
+        try {
+            const { token, pasword, email } = req.body;
+
+            const check_email = await handleverifyForgotPassword(token, pasword, email);
             return res.status(200).json({
-                data: data
+                data: check_email
             });
         } catch (err) {
-            return res.status(400).json({
-            
-                message: err.message || "Có lỗi xảy ra!",
-            });
+           next(err)
+        }
+    },
+    updateXU: async (req, res,next) => {
+
+        try {
+            const _id = req.params.id;
+            const data = await handeUpdateXU(_id, req.body);
+            return res.status(200).json(success(data));
+        } catch (err) {
+             next(err)
         }
     }
 

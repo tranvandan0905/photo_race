@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { isProfane } = require('./submission.getway');
 
 module.exports = {
     getcomment: async (req, res) => {
@@ -47,6 +48,11 @@ module.exports = {
         try {
             const user_id = req.user.id;
             const { submission_id, content } = req.body;
+            if (isProfane(content))
+                return res.status(400).json({
+                    errorCode: 1,
+                    message: "Nội dung chứa từ ngữ không phù hợp!",
+                });
             const response = await axios.post(`http://interaction-service:3006/api/interaction/comments`, { submission_id, content, user_id });
             return res.status(200).json({ data: response.data.data });
         } catch (error) {
@@ -58,8 +64,9 @@ module.exports = {
 
     deletecomment: async (req, res) => {
         try {
+            const user_id = req.user.id;
             const _id = req.params.id;
-            const response = await axios.delete(`http://interaction-service:3006/api/interaction/comments/${_id}`);
+            const response = await axios.delete(`http://interaction-service:3006/api/interaction/comments/${_id}/${user_id}`);
             return res.status(200).json({ data: response.data });
         } catch (error) {
             return res.status(500).json({
@@ -182,6 +189,8 @@ module.exports = {
     findVoteSub: async (req, res) => {
         try {
             const user_id = req.user.id;
+        
+
             const { submission_id } = req.params;
             const checkvote = await axios.get(`http://interaction-service:3006/api/interaction/votesubmissions/check/${submission_id}/${user_id}`);
             const isvoted = checkvote.data;
@@ -195,6 +204,8 @@ module.exports = {
     findlike: async (req, res) => {
         try {
             const user_id = req.user.id;
+       
+
             const { submission_id } = req.params;
             const checklike = await axios.get(`http://interaction-service:3006/api/interaction/likes/check/${submission_id}/${user_id}`);
             const isLiked = checklike.data;

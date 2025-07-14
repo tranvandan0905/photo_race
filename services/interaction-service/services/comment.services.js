@@ -29,10 +29,17 @@ module.exports = {
         return data;
     },
 
-    handeDeletecomment: async (_id) => {
-        if (!_id) throw new Error("Thiếu ID!");
+    handeDeletecomment: async (_id, user_id) => {
+        if (!_id || !user_id) throw new Error("Thiếu ID!");
+
+        const result = await comment.findById(_id);
+         console.log(_id,"data",result,"ID user",user_id);
+        if (!result) throw new Error("Comment không tồn tại!");
+        if (!result.user_id || result.user_id.toString() !== user_id.toString()) {
+            throw new Error("Không phải chủ sở hữu !");
+        }
+
         const data = await comment.findByIdAndDelete(_id);
-        if (!data) throw new Error("Comment không tồn tại!");
         return data;
     },
 
@@ -43,5 +50,8 @@ module.exports = {
         const data = await comment.findByIdAndUpdate(_id, { content: content.trim() }, { new: true });
         if (!data) throw new Error("Không tìm thấy comment để cập nhật!");
         return data;
+    },
+     deleteCmtMany : async (submission_id) => {
+      return await comment.deleteMany({ submission_id });
     }
 }
