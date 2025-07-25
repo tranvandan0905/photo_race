@@ -10,7 +10,8 @@ const login = async (req, res) => {
       });
       return res.status(200).json({
         message: "Đăng nhập thành công!",
-        token: response.data.token
+        token: response.data.token,
+        role:response.data.role
       });
     } catch (error) {
       return res.status(401).json({
@@ -48,6 +49,7 @@ const loginAds = async (req, res) => {
       return res.status(200).json({
         message: "Đăng nhập thành công!",
         token: response.data.token
+
       });
     } catch (error) {
       return res.status(401).json({

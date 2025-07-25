@@ -2,7 +2,7 @@ const VoteSubmission = require('../models/voteSubmission.model');
 const axios = require('axios');
 const getLastTopic = async () => {
     const response = await axios.get("http://topic-service:3004/api/topic");
-    return response.data?.data?.at(-1);
+    return response.data?.data.at(-1);
 };
 const isInVoteTime = (topic) => {
     const now = Date.now();
@@ -11,27 +11,22 @@ const isInVoteTime = (topic) => {
     return now > start && now < end;
 };
 const handleGetSumVoteSubmission = async (submission_id) => {
-    if (!submission_id) {
-        throw new Error("Không tìm thấy ID bài viết");
-    }
+ 
 
     const totalLikes = await VoteSubmission.countDocuments({ submission_id });
     return totalLikes;
 };
 const handepostVoteSubmission = async (submission_id, user_id) => {
-    if (!submission_id || !user_id) {
-        throw new Error("Thiếu thông tin!");
-    }
-
+   
     const existingVote = await VoteSubmission.findOne({ submission_id, user_id });
     if (existingVote) {
         throw new Error("Bạn đã Vote Submission!");
     }
 
-    const lastTopic = await getLastTopic();
-    if (!isInVoteTime(lastTopic)) {
-        throw new Error("Bạn không thể Vote vì nằm ngoài thời gian cho phép!");
-    }
+    // const lastTopic = await getLastTopic();
+    // if (!isInVoteTime(lastTopic)) {
+    //     throw new Error("Bạn không thể Vote vì nằm ngoài thời gian cho phép!");
+    // }
 
     try {
         const response = await axios.patch(`http://user-service:3003/api/user/vote/${user_id}`);
@@ -53,9 +48,7 @@ const handepostVoteSubmission = async (submission_id, user_id) => {
 
 // Xóa vote
 const handeDeleteVoteSubmission = async (submission_id, user_id) => {
-    if (!submission_id || !user_id) {
-        throw new Error("Thiếu thông tin!");
-    }
+   
 
     const existingVote = await VoteSubmission.findOne({ submission_id, user_id });
     if (!existingVote) {
@@ -89,9 +82,7 @@ const handeDeleteVoteSubmission = async (submission_id, user_id) => {
     };
 };
 const handefindVoteSub = async (submission_id, user_id) => {
-    if (!submission_id) {
-        throw new Error("Thiếu ID!");
-    }
+ 
        if(!user_id)
     {
          return false;

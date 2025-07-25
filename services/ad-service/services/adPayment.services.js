@@ -20,8 +20,10 @@ const handleCreateadpayment = async (data) => {
 
     return newAdvertiser;
 };
-const handlePaymentByIDADS =async(ad_id)=>{
- return  await adPayment.find({ ad_id }).lean();
+const handlePaymentByIDADS = async (ad_id) => {
+    return await adPayment.find({ ad_id }).lean();
 }
-   
-module.exports={handleCreateadpayment,handlePaymentByIDADS};
+const handlegetadpayment = async () => {
+    return await adPayment.find().populate("advertiser_id", "name email company_name");
+}
+module.exports = { handleCreateadpayment, handlePaymentByIDADS, handlegetadpayment };

@@ -303,7 +303,20 @@ const handelUpdateAdFields = async (_id, data) => {
     await Ad.updateOne({ _id }, { $set: updateData });
     return await Ad.findById(_id);
 };
+const handelUpdateAdadmin = async (_id, data) => {
+  const { status } = data;
+  const validStatuses = ["pending", "active", "completed", "rejected"];
+
+  if (!validStatuses.includes(status)) {
+    throw new Error("Trạng thái không hợp lệ");
+  }
+
+  return await Ad.findByIdAndUpdate(
+    _id,
+    { status },
+    { new: true } 
+  );
+};
 
 
-
-module.exports = { handeFindadverID, handelUpdateAdFields, handelUpdateadver, handleGetActiveAds, handleCreateAdvertiser, handleDeleteAdvertiser, handleGetAdvertisers, handleCreateAd, handleGetAllAds, handleGetAdsByAdvertiser, handeFindadver };
+module.exports = {handelUpdateAdadmin, handeFindadverID, handelUpdateAdFields, handelUpdateadver, handleGetActiveAds, handleCreateAdvertiser, handleDeleteAdvertiser, handleGetAdvertisers, handleCreateAd, handleGetAllAds, handleGetAdsByAdvertiser, handeFindadver };

@@ -7,7 +7,6 @@ const handelogin = async (email, password) => {
         params: { email },
         timeout: 3000
       });      
-      console.log("helo",response);
         const user = response.data?.data;
       
     if (!user) {
@@ -29,7 +28,7 @@ const handelogin = async (email, password) => {
         { expiresIn: "1d" }
     );
 
-    return { error: false, token, user };
+    return { error: false, token,  role: user.role };
 };
 const handeloginaAds = async (email, password) => {
     const response = await axios.get("http://ad-service:3009/api/ad/advertisers/find", {
@@ -51,7 +50,7 @@ const handeloginaAds = async (email, password) => {
     }
 
     const token = jwt.sign(
-        { id: ads._id, name: ads.name},
+        { id: ads._id, name: ads.name , role:"advertiser"},
         process.env.JWT_SECRET_Ads,
         { expiresIn: "1d" }
     );

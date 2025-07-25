@@ -1,5 +1,5 @@
 
-const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser, handeUpdateXU, handleemailpassword, handleverifyForgotPassword } = require("../services/user.services");
+const { handlePostUser, handGetUser, handleDeleteUser, handleUpdateUser, handeFindUser, handleFindIDUser, handePatchVoteXU, handeCancelVoteXU, handleFindNameUser, handleemailconfirmation, handleverifyUser, handeUpdateXU, handleemailpassword, handleverifyForgotPassword, handecheckpass, handegetPostUserCountByDateRange } = require("../services/user.services");
 const { success } = require("../utils/response.util");
 module.exports = {
     getuser: async (req, res,next) => {
@@ -23,6 +23,16 @@ module.exports = {
            next(error);
         }
     },
+     getPostUserCountByDateRange: async (req, res, next) => {
+        try {
+          const data = await handegetPostUserCountByDateRange(req.body);
+          return res.status(200).json(success(data, "Lấy thông tin thành công!",));
+    
+        } catch (error) {
+          next(error)
+        }
+    
+      },
     deleteduser: async (req, res,next) => {
         try {
             const _id = req.params.id;
@@ -65,6 +75,7 @@ module.exports = {
            next(error);
         }
     },
+  
     findNameUser: async (req, res,next) => {
         try {
             const { name } = req.query;

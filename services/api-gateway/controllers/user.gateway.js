@@ -136,7 +136,16 @@ const verifyForgotPassword = async (req, res,next) => {
       next(err);
   }
 };
+const getPostUserCountByDateRange = async (req, res, next) => {
+  try {
+    const response = await axios.post(`http://user-service:3003/api/user/user-count-by-date`,req.body);
+    return res.status(200).json(response.data);
+  } catch (error) {
+    next(error)
+  }
+};
 module.exports = {
+  getPostUserCountByDateRange,
   getUser,
   findUser,
   deleteUser,

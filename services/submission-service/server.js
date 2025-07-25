@@ -3,9 +3,11 @@ const express = require('express');
 const app = express();
 const connection = require('./config/db');
 const routeAPI = require('./routes/submission.routes');
-const port = process.env.PORT || 3000;
+const errorMiddleware = require('./middlewares/error.middleware');
+const port = process.env.PORT;
 app.use(express.json());
 app.use('/api/submission', routeAPI);
+app.use(errorMiddleware);
 (async () => {
     try {
         await connection();

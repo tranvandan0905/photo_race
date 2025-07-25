@@ -24,7 +24,7 @@ const momoAds = async (req, res) => {
         const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
         const partnerCode = "MOMO";
         const orderInfo = "Thanh toán xu bằng MoMo";
-        const redirectUrl = "http://localhost:3000/banking/momo-success";
+        const redirectUrl = `http://localhost:3000/banking/momo-success`;
         const ipnUrl = "http://banking-service:3010/api/banking/momo/ipnAds";
         const requestType = "payWithMethod";
         const orderId = partnerCode + Date.now();

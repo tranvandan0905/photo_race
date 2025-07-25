@@ -1,76 +1,51 @@
 
 const { handeGetTopic, handeUpdateTopic, handePostTopic,handeDeleteTopic,handeFindTopic } = require("../services/topic.services");
+const { success } = require("../utils/response.util");
 
 module.exports = {
-    gettopic: async (req, res) => {
+    gettopic: async (req, res,next) => {
         try {
             const data = await handeGetTopic();
-            return res.status(200).json({
-                data: data,
-                message: "Lấy topic thành công!"
-            });
+            return res.status(200).json(success( data,"Lấy topic thành công!"));
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!'
-            })
+            next(error);
         }
     },
-    posttopic: async (req, res) => {
+    posttopic: async (req, res,next) => {
         try {
             const data = req.body;
             const topic = await handePostTopic(data);
-            return res.status(200).json({
-                data: topic,
-                message: "Thêm topic thành công!"
-            });
+            return res.status(200).json(success( topic,"Thêm topic thành công!"));
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!'
-            })
+               next(error);
         }
     },
-    updatatopic: async (req, res) => {
+    updatatopic: async (req, res,next) => {
         try {
             const data = req.body;
             const _id = req.params.id;
             const result = handeUpdateTopic(_id, data);
-            return res.status(200).json({
-                data: result,
-                message: "Update Topic thành công!"
-            });
+            return res.status(200).json(success( result,"Update Topic thành công!"));
         } catch (error) {
-            return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!'
-            })
+              next(error);
         }
     },
-    deletedtopic: async(req,res)=>{
+    deletedtopic: async(req,res,next)=>{
         try {
             const _id=req.params.id;
             const result=handeDeleteTopic(_id);
-            return res.status(200).json({
-                data:result,
-                message:"Xóa Topic thành công!"
-            });
+            return res.status(200).json(success(result,"Xóa Topic thành công!"));
         } catch (error) {
-              return res.status(400).json({
-                message: error.message || 'Có lỗi xảy ra!'
-            })
+                next(error);
         }
     },
-    findTopic: async (req, res) => {
+    findTopic: async (req, res,next) => {
         try {
           const  title  = req.query;
           const topic = await handeFindTopic( title );
-          return res.status(200).json({
-             data: topic,
-             message:"Tim thay Topic thành công!"
-             });
+          return res.status(200).json(success(topic,"Tim thay Topic thành công!"));
         } catch (error) {
-          return res.status(400).json({
-              message: error.message  || "Có lỗi xảy ra!",
-
-          });
+            next(error);
         }
       },
     

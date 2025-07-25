@@ -6,7 +6,8 @@ const loginPages = async (req, res) => {
         const result = await handelogin(email, password); 
         res.json({ 
             message: "Đăng nhập thành công!", 
-            token: result.token 
+            token: result.token,
+            role: result.role
         });
     
     } catch (error) {

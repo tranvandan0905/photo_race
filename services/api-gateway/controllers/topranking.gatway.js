@@ -1,45 +1,52 @@
 const axios = require('axios');
 
-const topranking = async (req, res) => {
+const topranking = async (req, res,next) => {
   try {
-    const response = await axios.get('http://topranking-service:3007/api/topranking');
-    return res.status(200).json({ data: response.data });
+    const {ranklike, rankcommnet, rankvote}= req.query;
+    const response = await axios.get('http://topranking-service:3007/api/topranking',{
+      params: {
+        ranklike: Number(ranklike ?? 1),
+        rankcommnet: Number(rankcommnet ?? 2),
+        rankvote: Number(rankvote ?? 5),
+      }});
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+      next(error);
   }
 };
-const sumtopranking = async(req,res)=>{
+const sumtopranking = async(req,res,next)=>{
      try {
     const response = await axios.get('http://topranking-service:3007/api/topranking/toprank');
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    }); 
+   next(error);
   }
 };
-const FindTopic_sub = async(req,res)=>{
+const FindTopic_sub = async(req,res,next)=>{
      try {
     const response = await axios.get(`http://topranking-service:3007/api/topranking/topranking-topic/${req.params.topic_id}`);
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    }); 
+     next(error);
   }
 };
-const Topranking_New = async(req,res)=>{
+const Topranking_New = async(req,res,next)=>{
      try {
     const response = await axios.get(`http://topranking-service:3007/api/topranking/new-user-topranking`);
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    }); 
+      next(error);
+  }
+};
+const findUserScore = async(req,res,next)=>{
+     try {
+   const id= req.user.id;
+    const response = await axios.get(`http://topranking-service:3007/api/topranking/findUserScore/${id}`);
+    return res.status(200).json(response.data);
+  } catch (error) {
+      next(error);
   }
 };
 module.exports={
-    sumtopranking,topranking,FindTopic_sub,Topranking_New
+    sumtopranking,topranking,FindTopic_sub,Topranking_New,findUserScore
 }

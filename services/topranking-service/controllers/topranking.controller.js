@@ -1,60 +1,42 @@
 const { handletopranking, handleSumTopRanking, handeFindTopic_sub, handeTopranking_New, deleteSubTopranking } = require("../services/topranking.services");
+const { success } = require("../utils/response.util");
 
-const topranking = async (req, res) => {
+const topranking = async (req, res,next) => {
     try {
-        const data = await handletopranking();
-        return res.status(200).json({
-            data: data,
-            message: "Xét topranking thành công!"
-        });
+        const {ranklike, rankcommnet, rankvote}=req.query;
+        const data = await handletopranking(ranklike, rankcommnet, rankvote);
+        return res.status(200).json(success(data, "Xét topranking thành công!"));
     } catch (error) {
-        return res.status(400).json({
-            message: error.message || 'Có lỗi xảy ra!'
-        })
+       next(error);
     }
 }
-const sumtopranking = async (req, res) => {
+const sumtopranking = async (req, res,next) => {
     try {
         const data = await handleSumTopRanking();
-        return res.status(200).json({
-            data: data,
-            message: "Lấy topranking thành công!"
-        });
+        return res.status(200).json(success(data,"Lấy topranking thành công!"));
     } catch (error) {
-        return res.status(400).json({
-            message: error.message || 'Có lỗi xảy ra!'
-        })
+            next(error);      
     }
 }
-const FindTopic_sub = async (req, res) => {
+const FindTopic_sub = async (req, res,next) => {
     try {
         const { topic_id } = req.params;
         const data = await handeFindTopic_sub(topic_id);
-        return res.status(200).json({
-            data: data,
-            message: "Lấy topranking thành công!"
-        });
+        return res.status(200).json(success(data,"Lấy topranking thành công!"));
     } catch (error) {
-        return res.status(400).json({
-            message: error.message || 'Có lỗi xảy ra!'
-        })
+    next(error);
     }
 }
-const Topranking_New = async (req, res) => {
+const Topranking_New = async (req, res,next) => {
     try {
 
         const data = await handeTopranking_New();
-        return res.status(200).json({
-            data: data,
-            message: "Lấy topranking thành công!"
-        });
+        return res.status(200).json(success(data,"Lấy topranking thành công!"));
     } catch (error) {
-        return res.status(400).json({
-            message: error.message || 'Có lỗi xảy ra!'
-        })
+     next(error);
     }
 }
-const deleteSub = async (req, res) => {
+const deleteSub = async (req, res,next) => {
     try {
         const submission_id = req.params.submission_id;
         const data = await deleteSubTopranking(submission_id);
@@ -64,9 +46,7 @@ const deleteSub = async (req, res) => {
            
         });
     } catch (error) {
-        return res.status(400).json({
-            message: error.message || 'Có lỗi xảy ra!'
-        })
+     next(error);
     }
 }
 module.exports = { topranking, sumtopranking, FindTopic_sub, Topranking_New, deleteSub }

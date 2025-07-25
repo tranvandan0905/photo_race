@@ -17,6 +17,22 @@ const handlePostUser = async ({ email, name, password }) => {
 
   return newUser;
 };
+// số lượng user tham gia
+const handegetPostUserCountByDateRange = async (data) => {
+  const { startDate, endDate } = data;
+  // Chuyển startDate và endDate về định dạng Date
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const count = await users.countDocuments({
+    created_at: {
+      $gte: start,
+      $lte: end
+    }
+  });
+
+  return count;
+};
 // find user all check
 const handGetUser = async (check) => {
   let data = null;
@@ -37,7 +53,7 @@ const handGetUser = async (check) => {
 // uesr xóa mềm
 const handleDeleteUser = async (_id) => {
   const user = await users.deleteById(_id);
-  if (!user) throw new AppError("User không tồn tại!",200);
+  if (!user) throw new AppError("User không tồn tại!", 200);
   return user;
 };
 // update user 
@@ -57,7 +73,7 @@ const handleUpdateUser = async (data, _id) => {
   };
   if (passwordnew) {
     if (!password) {
-      throw new AppError("Bạn phải nhập mật khẩu hiện tại để đổi mật khẩu mới!",200);
+      throw new AppError("Bạn phải nhập mật khẩu hiện tại để đổi mật khẩu mới!", 200);
     }
 
     const isMatch = await bcrypt.compare(password, userid.password_hash);
@@ -77,7 +93,7 @@ const handleUpdateUser = async (data, _id) => {
 const handleFindIDUser = async (_id) => {
   const result = await users.findById(_id);
   if (!result) {
-    throw new AppError("Không tìm thấy người dùng!",200);
+    throw new AppError("Không tìm thấy người dùng!", 200);
   }
   return result;
 };
@@ -86,7 +102,7 @@ const handeFindUser = async (email) => {
   let user = await users.findOneWithDeleted({ email });
 
   if (!user) {
-    throw new AppError("Không tìm thấy người dùng!",200);
+    throw new AppError("Không tìm thấy người dùng!", 200);
   }
 
   if (user.deleted) {
@@ -103,7 +119,7 @@ const handleFindNameUser = async (name) => {
   });
 
   if (!usersFound || usersFound.length === 0) {
-    throw new AppError("Không tìm thấy user theo name",200);
+    throw new AppError("Không tìm thấy user theo name", 200);
   }
   return usersFound;
 };
@@ -113,7 +129,7 @@ const handePatchVoteXU = async (_id) => {
   const finduser = await handleFindIDUser(_id);
   const newXu = finduser.xu - 5;
   if (newXu < 0) {
-    throw new AppError("Không đủ XU để vote!",200);
+    throw new AppError("Không đủ XU để vote!", 200);
   }
 
   const result = await users.updateOne(
@@ -122,14 +138,14 @@ const handePatchVoteXU = async (_id) => {
   );
 
   if (result.matchedCount === 0) {
-    throw new AppError("Không tìm thấy user để cập nhật!",200);
+    throw new AppError("Không tìm thấy user để cập nhật!", 200);
   }
 
   return result;
 }
 // cộng xu
 const handeCancelVoteXU = async (_id) => {
- 
+
   const finduser = await handleFindIDUser(_id);
   const newXu = finduser.xu + 5;
   const result = await users.updateOne(
@@ -138,7 +154,7 @@ const handeCancelVoteXU = async (_id) => {
   );
 
   if (result.matchedCount === 0) {
-    throw new AppError("Không tìm thấy user để cập nhật!",200);
+    throw new AppError("Không tìm thấy user để cập nhật!", 200);
   }
 
   return result;
@@ -148,11 +164,11 @@ const handeUpdateXU = async (_id, data) => {
   const { amount, check } = data;
 
   if (!["DepositRequest", "WithdrawRequest"].includes(check)) {
-    throw new AppError("Loại giao dịch không hợp lệ",200);
+    throw new AppError("Loại giao dịch không hợp lệ", 200);
   }
 
   const user = await handleFindIDUser(_id);
-  if (!user) throw new AppError("Không tìm thấy user",200);
+  if (!user) throw new AppError("Không tìm thấy user", 200);
 
   let newXu;
 
@@ -160,7 +176,7 @@ const handeUpdateXU = async (_id, data) => {
     newXu = user.xu + amount;
   } else {
     if (user.xu < amount) {
-      throw new AppError("Số dư không đủ để rút",200);
+      throw new AppError("Số dư không đủ để rút", 200);
     }
     newXu = user.xu - amount;
   }
@@ -171,7 +187,7 @@ const handeUpdateXU = async (_id, data) => {
   );
 
   if (result.matchedCount === 0) {
-    throw new Error("Không thể cập nhật xu",200);
+    throw new Error("Không thể cập nhật xu", 200);
   }
 
   return { success: true, xu: newXu };
@@ -184,7 +200,7 @@ const handleemailconfirmation = async (email, name, password) => {
 
   const checkemail = await findUserWithAnyStatus(email);
   if (checkemail) {
-    throw new AppError('Email đã tồn tại',200);
+    throw new AppError('Email đã tồn tại', 200);
   }
 
   const token = crypto.randomUUID();
@@ -223,7 +239,7 @@ const handleverifyUser = async (token) => {
 const handleemailpassword = async (email) => {
   const checkemail = await findUserWithAnyStatus(email);
   if (!checkemail) {
-    throw new AppError('Email không tồn tại!',200);
+    throw new AppError('Email không tồn tại!', 200);
   }
 
   const token = crypto.randomUUID();
@@ -238,11 +254,11 @@ const handleverifyForgotPassword = async (token, pasword, email) => {
   const user = fakepasswordDB.find(u => u.token === token);
 
   if (!user) {
-    throw new AppError('Token không hợp lệ hoặc hết hạn!',200);
+    throw new AppError('Token không hợp lệ hoặc hết hạn!', 200);
   }
 
   if (user.verified) {
-    throw new AppError('Tài khoản đã được xác minh trước đó!',200);
+    throw new AppError('Tài khoản đã được xác minh trước đó!', 200);
   }
 
   user.verified = true;
@@ -252,11 +268,14 @@ const handleverifyForgotPassword = async (token, pasword, email) => {
   if (User)
     return 'Tài khoản đã được xác minh và tạo mật khẩu thành công, bạn hãy tiến hành đăng nhập!';
   else
-    throw new AppError('Tạo tài khoản thất bại!',200);
+    throw new AppError('Tạo tài khoản thất bại!', 200);
 };
 const findUserWithAnyStatus = async (email) => {
   return await users.collection.findOne({ email });
 };
+// check pass
+
+
 module.exports = {
-  handleverifyForgotPassword, handleemailpassword, handeUpdateXU, handleverifyUser, handleemailconfirmation, handlePostUser, handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU, handeCancelVoteXU
+ handegetPostUserCountByDateRange,handleverifyForgotPassword, handleemailpassword, handeUpdateXU, handleverifyUser, handleemailconfirmation, handlePostUser, handleFindNameUser, handGetUser, handleDeleteUser, handleUpdateUser, handleFindIDUser, handeFindUser, handePatchVoteXU, handeCancelVoteXU
 };

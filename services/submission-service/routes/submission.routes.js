@@ -1,9 +1,10 @@
 const express =require("express");
-const { getsubmission,postsubmission, FindsubmissionTopic, deletesubmission, FindsubTopic } = require("../controllers/submission.controller");
+const { getsubmission,postsubmission, FindsubmissionTopic, deletesubmission, FindsubTopic, getPostCountByDateRange } = require("../controllers/submission.controller");
 const routeAPI=express.Router();
 routeAPI.get("/",getsubmission);
 routeAPI.post("/",postsubmission);
 routeAPI.delete('/:id/:user_id',deletesubmission);
 routeAPI.get('/findIDTopic/:topic_id/:user_id',FindsubmissionTopic);
 routeAPI.get('/FindsubmissionTopic/:topic_id',FindsubTopic);
+routeAPI.post('/sub-count-by-date', getPostCountByDateRange);
 module.exports=routeAPI; 

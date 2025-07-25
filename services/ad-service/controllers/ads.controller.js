@@ -4,6 +4,7 @@ const {
   handleGetAdsByAdvertiser,
   handleGetActiveAds,
   handelUpdateAdFields,
+  handelUpdateAdadmin,
 } = require("../services/ad.services");
 const PostAd = async (req, res) => {
   try {
@@ -55,10 +56,27 @@ const UpdateAds = async (req,res) => {
     })
   }
 };
+const UpdateAdsadmin = async (req,res) => {
+  try {
+    const _id = req.params.id;
+    const data = req.body;
+    const adver = await handelUpdateAdadmin(_id, data);
+    return res.status(200).json({
+      data: adver
+    });
+
+  } catch (error) {
+    return res.status(400).json({
+      data: [],
+      message: error.message || "Có lỗi sảy ra!",
+    })
+  }
+};
 module.exports = {
   PostAd,
   GetAds,
   GetAdsByAdvertiser,
   GetActiveAds,
-  UpdateAds
+  UpdateAds,
+  UpdateAdsadmin
 };

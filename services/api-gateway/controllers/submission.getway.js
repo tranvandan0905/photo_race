@@ -1,95 +1,40 @@
 const axios = require('axios');
 const FormData = require('form-data');
 const leoProfanity = require("leo-profanity");
+const { success } = require('../utils/response.util');
+const AppError = require('../utils/AppError');
 leoProfanity.add([
-  "địt",
-  "đụ",
-  "lồn",
-  "buồi",
-  "cặc",
-  "cứt",
-  "chym",
-  "chịch",
-  "nứng",
-  "bú",
-  "liếm",
-  "bú lol",
-  "bú lồn",
-  "thẩm du",
-  "quay tay",
-  "thủ dâm",
-  "dâm đãng",
-  "lõa lồ",
-  "dâm dục",
-  "hiếp",
-  "hiếp dâm",
-  "vãi",
-  "vl",
-  "vcl",
-  "dm",
-  "đm",
-  "dmm",
-  "đmm",
-  "mẹ mày",
-  "mày chết",
-  "mẹ kiếp",
-  "đồ chó",
-  "thằng chó",
-  "con chó",
-  "mẹ cha",
-  "thằng ngu",
-  "con ngu",
-  "óc chó",
-  "óc lợn",
-  "đần độn",
-  "fuck",
-  "shit",
-  "bitch",
-  "bastard",
-  "dick",
-  "pussy",
-  "slut",
-  "asshole",
-  "fucking",
-  "motherfucker"
+  "địt", "đụ", "lồn", "buồi", "cặc", "cứt", "chym", "chịch", "nứng", "bú", "liếm", "bú lol", "bú lồn", "thẩm du",
+  "quay tay", "thủ dâm", "dâm đãng", "lõa lồ", "dâm dục", "hiếp", "hiếp dâm", "vãi", "vl", "vcl", "dm", "đm", "dmm",
+  "đmm", "mẹ mày", "mày chết", "mẹ kiếp", "đồ chó", "thằng chó", "con chó", "mẹ cha", "thằng ngu", "con ngu", "óc chó", "óc lợn", "đần độn",
+  "fuck", "shit", "bitch", "bastard", "dick", "pussy", "slut", "asshole", "fucking", "motherfucker"
 ]);
 
 const isProfane = (text) => {
-    return leoProfanity.check(text.toLowerCase());
+  return leoProfanity.check(text.toLowerCase());
 };
 
-const postsubmission = async (req, res) => {
+const postsubmission = async (req, res, next) => {
   try {
     const title = req.body.title;
     const user_id = req.user.id;
     const image = req.file;
-    if (!title || !image || !user_id) {
-      throw new Error("Vui lòng điền đầy đủ thông tin!");
-    }
     if (isProfane(title)) {
-      return res.status(400).json({
-        errorCode: 1,
-        message: "Tiêu đề chứa từ ngữ không phù hợp!",
-      });
+      return res.status(400).json(success(null, "Tiêu đề chứa từ ngữ không phù hợp!"));
     }
     // Lấy topic đã vote của user
     let votetopic;
-    try {
-      const resVote = await axios.get(`http://interaction-service:3006/api/interaction/votetopics/user/${user_id}`);
-      votetopic = resVote.data?.data;
-    } catch (err) {
-      throw new Error(err.response?.data?.message || "Không thể lấy chủ đề đã vote!");
-    }
+    const resVote = await axios.get(`http://interaction-service:3006/api/interaction/votetopics/user/${user_id}`);
+    votetopic = resVote.data?.data;
 
     const topic_id = votetopic?._id;
     if (!topic_id) {
-      throw new Error("Không tìm thấy topic đã vote!");
+      return res.status(400).json(success(null, "Bạn chưa vote cho chủ đề này!"));
     }
-  
-      const checktopic = await axios.get(`http://submission-service:3005/api/submission/findIDTopic/${topic_id}/${user_id}`);
-      if (checktopic.data.check==true) {
-        throw new Error(checktopic.data.message);
-      }
+    const checktopic = await axios.get(`http://submission-service:3005/api/submission/findIDTopic/${topic_id}/${user_id}`);
+    if (checktopic.data.check == true) {
+      return res.status(400).json(success(null, "Bạn đã có bài dăng cho chủ đề này!"));
+    }
     const form = new FormData();
     form.append("file", image.buffer, { filename: image.originalname, contentType: image.mimetype });
 
@@ -103,7 +48,7 @@ const postsubmission = async (req, res) => {
 
     const imageUrl = response.data?.data?.secure_url;
     if (!imageUrl) {
-      throw new Error("Lấy ảnh thất bại!");
+      throw new AppError("Lấy ảnh thất bại!", 200);
     }
 
     const submission = await axios.post(
@@ -111,19 +56,13 @@ const postsubmission = async (req, res) => {
       { user_id, topic_id, title, imageUrl }
     );
 
-    return res.status(200).json({
-      errorCode: 0,
-      data: submission.data,
-    });
+    return res.status(200).json(submission.data);
 
   } catch (error) {
-    return res.status(400).json({
-      errorCode: 1,
-      message: error?.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
-    });
+    next(error)
   }
 };
-const getsubmission = async (req, res) => {
+const getsubmission = async (req, res, next) => {
   try {
     const user_id = req.query.user_id;
     const submissions = await axios.get(`http://submission-service:3005/api/submission`, {
@@ -134,18 +73,12 @@ const getsubmission = async (req, res) => {
     const submissionsWithUser = await Promise.all(
       sub.data.map(async (post) => {
         try {
-          // Lấy thông tin người dùng
           const userRes = await axios.get(`http://user-service:3003/api/user/findID/${post.user_id}`);
           const user = userRes.data?.data;
-
-          // Lấy tổng số like
           const likesRes = await axios.get(`http://interaction-service:3006/api/interaction/submissions/${post._id}/likes`);
           const totalLikes = likesRes.data.sumlike || 0;
-
-          // Lấy tổng số comment
           const response = await axios.get(`http://interaction-service:3006/api/interaction/submissions/${post._id}/comments`);
           const totalComments = response.data?.data?.total || 0;
-          // Lấy tổng số vote
           const votesRes = await axios.get(`http://interaction-service:3006/api/interaction/votesubmissions/${post._id}`);
           const totalVotes = votesRes.data.sumvote || 0;
           return {
@@ -169,39 +102,37 @@ const getsubmission = async (req, res) => {
         }
       })
     )
-    return res.status(200).json({
-      errorCode: 0,
-      data: submissionsWithUser,
-      message: "Lấy danh sách bài đăng kèm thông tin user, tổng like, tổng comment, tổng vote thành công!",
-    });
+    return res.status(200).json(success(submissionsWithUser, "Lấy danh sách bài đăng kèm thông tin user, tổng like, tổng comment, tổng vote thành công!"));
 
   } catch (error) {
-    return res.status(400).json({
-      errorCode: 1,
-      message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!",
-    });
+    next(error)
   }
 };
-const FindsubTopic = async (req, res) => {
+const FindsubTopic = async (req, res, next) => {
   try {
     const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${req.params.topic_id}`);
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+    next(error)
+
   }
 };
-const deletesubmission = async (req, res) => {
+const deletesubmission = async (req, res, next) => {
   try {
     const id = req.user.id;
     const id_sub = req.params.id;
     const response = await axios.delete(`http://submission-service:3005/api/submission/${id_sub}/${id}`);
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+    next(error)
   }
 };
-module.exports = { isProfane, postsubmission, getsubmission, FindsubTopic, deletesubmission };
+const getPostCountByDateRange = async (req, res, next) => {
+  try {
+    const response = await axios.post(`http://submission-service:3005/api/submission/sub-count-by-date`,req.body);
+    return res.status(200).json(response.data);
+  } catch (error) {
+    next(error)
+  }
+};
+module.exports = {getPostCountByDateRange,isProfane, postsubmission, getsubmission, FindsubTopic, deletesubmission };

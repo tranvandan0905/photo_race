@@ -1,12 +1,14 @@
+const AppError = require("../utils/AppError");
 const topranking = require("../models/topranking.model");
 const axios = require('axios');
-const handletopranking = async () => {
+const userScoreModel = require("../models/userScore.model");
+const handletopranking = async (ranklike, rankcomment, rankvote) => {
     const lastTopic = await getLastTopic();
     if (!lastTopic) {
-        throw new Error("Không tìm thấy chủ đề nào.");
+        throw new AppError("Không tìm thấy chủ đề nào.", 200);
     }
     if (!isInVoteTime(lastTopic)) {
-        throw new Error("Thời gian chử đề còn thời gian !");
+        throw new AppError("Thời gian chử đề còn thời gian !", 200);
     };
     const ID_Topic = lastTopic._id;
     const response = await axios.get(`http://submission-service:3005/api/submission/FindsubmissionTopic/${ID_Topic}`);
@@ -51,7 +53,7 @@ const handletopranking = async () => {
 
     submissionsWithUser.forEach(sub => {
         const userId = sub.user_id;
-        const score = sub.like * 1 + sub.comment * 2 + sub.vote * 5;
+        const score = sub.like * ranklike + sub.rankcomment * coment + sub.vote * rankvote;
 
         if (!userScores[userId]) {
             userScores[userId] = {
@@ -86,12 +88,29 @@ const handletopranking = async () => {
             user_id: sub.user_id,
             topic_id: sub.topic_id
         });
+
         if (!existed) {
             await handleposttopranking(sub.user_id, sub.submission_id, sub.score, sub.topic_id);
+
+            try {
+                const userScore = await userScoreModel.findOne({ user_id: sub.user_id });
+
+                if (userScore) {
+                    await userScoreModel.findOneAndUpdate(
+                        { user_id: sub.user_id },
+                        { $inc: { totalScore: sub.score } }
+                    );
+                } else {
+                    await userScoreModel.create({
+                        user_id: sub.user_id,
+                        totalScore: sub.score
+                    });
+                }
+            } catch (err) {
+                throw new AppError(err.message, 200);
+            }
         }
     }
-
-
     return topUsers;
 };
 
@@ -129,7 +148,6 @@ const handleSumTopRanking = async () => {
     const Toprank = await Promise.all(
         result.map(async (post) => {
             try {
-                // Lấy thông tin người dùng
                 const userRes = await axios.get(`http://user-service:3003/api/user/findID/${post._id}`);
                 const user = userRes.data?.data;
                 return {
@@ -154,7 +172,7 @@ const deleteSubTopranking = async (submission_id) => {
     return await topranking.deleteOne({ submission_id });
 };
 const getToprankingTopic = async (topic_id) => {
-  return await topranking.find({ topic_id }).lean();
+    return await topranking.find({ topic_id }).lean();
 };
 const handeFindTopic_sub = async (topic_id) => {
     try {

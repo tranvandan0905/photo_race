@@ -2,7 +2,7 @@
 const AppError = require('../utils/AppError');
 
 const validateEmail = (req, res, next) => {
-    const { email } = req.query ||  req.body;;
+    const { email } = req.query;
     if (!email) {
         return next(new AppError('Thiếu email!', 422));
     }
@@ -27,7 +27,7 @@ const validateupdateAvataUser = (req, res, next) => {
     }
     next();
 };
-const validateID_user = (req, res, next) => {
+const validateID = (req, res, next) => {
     const id = req.params.id;
     if (!id) {
         return next(new AppError('Thiếu ID người dùng!', 422));
@@ -52,4 +52,28 @@ const validatecreateUser = (req, res, next) => {
     }
     next();
 }
-module.exports = { validateEmail, validatefindNameUser, validateupdateAvataUser, validateID_user, validatecreateUser };
+const validatecreatetopic = (req, res, next) => {
+    const { title, start_time, end_time } = req.body;
+
+    if (!title || !start_time || !end_time) {
+        return next(new AppError('Không được để trống!', 422));
+    }
+    next();
+}
+const validatefindTopic = (req, res, next) => {
+    const title = req.query;
+    if (!title) {
+        return next(new AppError('Không được để trống!', 422));
+    }
+    next();
+}
+const validatecreateSub = (req, res, next) => {
+    const title = req.body.title;
+    const user_id = req.user.id;
+    const image = req.file;
+    if (!title || !user_id || !image) {
+        return next(new AppError('Không được để trống!', 422));
+    }
+    next();
+}
+module.exports = {validatecreateSub, validatefindTopic, validateEmail, validatefindNameUser, validateupdateAvataUser, validateID, validatecreateUser, validatecreatetopic };

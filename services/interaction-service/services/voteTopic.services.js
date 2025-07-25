@@ -2,7 +2,7 @@ const voteTopic = require('../models/voteTopic.model');
 const axios = require('axios');
 const getLastTopic = async () => {
     const response = await axios.get("http://topic-service:3004/api/topic");
-    return response.data?.data?.at(-1);
+    return response.data?.data.at(-1);
 };
 const isInVoteTime = (topic) => {
     const now = Date.now();

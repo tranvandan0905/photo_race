@@ -1,60 +1,50 @@
 const axios = require('axios');
 
-const getTopic = async (req, res) => {
+const getTopic = async (req, res,next) => {
   try {
     const response = await axios.get('http://topic-service:3004/api/topic');
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+   next(error);
   }
 };
 
-const postTopic = async (req, res) => {
+const postTopic = async (req, res,next) => {
   try {
     const response = await axios.post('http://topic-service:3004/api/topic', req.body);
-    return res.status(201).json({ data: response.data });
+    return res.status(201).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+      next(error);
   }
 };
 
-const updateTopic = async (req, res) => {
+const updateTopic = async (req, res,next) => {
   try {
     const response = await axios.put(`http://topic-service:3004/api/topic/${req.params.id}`, req.body);
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+       next(error);
   }
 };
 
-const deleteTopic = async (req, res) => {
+const deleteTopic = async (req, res,next) => {
   try {
-    await axios.delete(`http://topic-service:3004/api/topic/${req.params.id}`);
-    return res.status(200).json({ message: "Xoá thành công!" });
+    const data =await axios.delete(`http://topic-service:3004/api/topic/${req.params.id}`);
+    return res.status(200).json(data.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+     next(error);
   }
 };
 
-const findTopic = async (req, res) => {
+const findTopic = async (req, res,next) => {
   try {
     const  title  = req.query;
     const response = await axios.get('http://topic-service:3004/api/topic/find', {
       params:title 
     });
-    return res.status(200).json({ data: response.data });
+    return res.status(200).json(response.data);
   } catch (error) {
-    return res.status(400).json({
-      message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
-    });
+   next(error);
   }
 };  
 

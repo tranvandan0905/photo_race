@@ -5,6 +5,7 @@ const connection=require('./config/db');
 const post=process.env.POST;
 app.use(express.json());
 const routeAPI=require("./routes/interaction.routes");
+const errorMiddleware = require('./middlewares/error.middleware');
 app.use('/api/interaction',routeAPI);
 (async () => {
     try {
@@ -14,6 +15,7 @@ app.use('/api/interaction',routeAPI);
         console.log(">> error", error)
     }
 })()
+app.use(errorMiddleware);
 app.listen(post,()=>{
     console.log(" ket not thanh cong ");
 })

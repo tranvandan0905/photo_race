@@ -1,8 +1,6 @@
 const axios = require('axios');
-
 const PostAdvertiser = async (req, res) => {
     try {
-
         const response = await axios.post('http://ad-service:3009/api/ad/advertisers', req.body);
         return res.status(200).json({ data: response.data });
     } catch (error) {
@@ -26,7 +24,7 @@ const DeleteAdvertiser = async (req, res) => {
 const GetAdvertisers = async (req, res) => {
     try {
         const response = await axios.get(`http://ad-service:3009/api/ad/advertisers`);
-        return res.status(200).json({ data: response.data });
+        return res.status(200).json(response.data);
     } catch (error) {
         return res.status(500).json({
             message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
@@ -55,7 +53,7 @@ const GetAds = async (req, res) => {
     try {
 
         const response = await axios.get('http://ad-service:3009/api/ad/ads');
-        return res.status(200).json({ data: response.data });
+        return res.status(200).json(response.data);
     } catch (error) {
         return res.status(500).json({
             message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
@@ -126,6 +124,16 @@ const UpdateAds = async (req, res) => {
 
     }
 };
+const UpdateAdsadmin = async (req, res) => {
+    try {
+        const ads = await axios.put(`http://ad-service:3009/api/ad/ads/updateadmin/${req.params.id}`, req.body)
+        return res.status(200).json(ads.data);
+    } catch (error) {
+        return res.status(500).json({
+            message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+        });
+    }
+};
 const Updateadver = async (req, res) => {
     try {
 
@@ -140,7 +148,20 @@ const Updateadver = async (req, res) => {
             });
         }
     } catch (error) {
-
+        return res.status(500).json({
+            message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+        });
+    }
+};
+const GetAdsByAdvertiserAdmin = async (req, res) => {
+    try {
+        const advertiser_id = req.params.id;
+        const response = await axios.get(`http://ad-service:3009/api/ad/ads/byAdvertiser/${advertiser_id}`)
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(500).json({
+            message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+        });
     }
 };
 const GetPaymentByAdvertiser = async (req, res) => {
@@ -154,7 +175,18 @@ const GetPaymentByAdvertiser = async (req, res) => {
         });
     }
 };
+const getAdpayment = async (req, res) => {
+    try {
+        const response = await axios.get(`http://ad-service:3009/api/ad/adPaymentAdmin`)
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(500).json({
+            message: error.response?.data?.message || "Có lỗi xảy ra khi gọi API!"
+        });
+    }
+};
 module.exports = {
+    getAdpayment,
     PostAdvertiser,
     DeleteAdvertiser,
     GetAdvertisers,
@@ -165,5 +197,7 @@ module.exports = {
     Updateadver,
     UpdateAds,
     FindverID,
-    GetPaymentByAdvertiser
+    GetPaymentByAdvertiser,
+    GetAdsByAdvertiserAdmin,
+    UpdateAdsadmin
 };
