@@ -1,4 +1,4 @@
-const { handefindcheckvoteTopicUser, handepostVoteTopic, handeDeleteVoteTopic } = require('../services/voteTopic.services');
+const { handefindcheckvoteTopicUser, handepostVoteTopic, handeDeleteVoteTopic, handesumvotetopic } = require('../services/voteTopic.services');
 module.exports = {
     findcheckvoteTopicUser: async (req, res) => {
         try {
@@ -48,7 +48,21 @@ module.exports = {
                 message: error.message || 'Có lỗi xảy ra!',
             });
         }
+    },
+
+sumvotetopic: async (req, res) => {
+        try {
+            const { topic_id } = req.params;
+            const data = await handesumvotetopic(topic_id);
+            return res.status(200).json({
+                data: data,
+                message: "Lấy Tổng VoteTopic thành công!",
+            });
+        } catch (error) {
+            return res.status(400).json({
+                data: [],
+                message: error.message || 'Có lỗi xảy ra!',
+            });
+        }
     }
-
-
 }

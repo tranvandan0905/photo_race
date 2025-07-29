@@ -1,12 +1,13 @@
 const express = require("express");
-const { findcheckvoteTopicUser, postVoteTopic,deleteVoteTopic } = require("../controllers/voteTopic.controller");
+const { findcheckvoteTopicUser, postVoteTopic,deleteVoteTopic, sumvotetopic } = require("../controllers/voteTopic.controller");
 const { getcomment, deletecomment,postcomment, patchcomment, deletecmt} = require("../controllers/comment.controller");
 const { findlike, getsumlike, deletelike, postlike, deleteMany } = require("../controllers/like.controller");
-const { postVoteSubmission, deleteVoteSubmission, getsumVoteSubmission, findVoteSub } = require("../controllers/voteSubmission.controller");
+const { postVoteSubmission, deleteVoteSubmission, getsumVoteSubmission, findVoteSub, sumvoteSub } = require("../controllers/voteSubmission.controller");
 const routeAPI=express.Router();
 // VoteTopic
 routeAPI.get('/votetopics/user/:id', findcheckvoteTopicUser);
 routeAPI.post('/votetopics', postVoteTopic);
+routeAPI.get('/sumvotetopic/:topic_id', sumvotetopic);
 routeAPI.delete('/votetopics/:topic_id/:user_id', deleteVoteTopic);
 // Comments
 routeAPI.get('/submissions/:id/comments', getcomment);
@@ -25,4 +26,5 @@ routeAPI.get('/votesubmissions/:id', getsumVoteSubmission);
 routeAPI.post('/votesubmissions', postVoteSubmission);
 routeAPI.get('/votesubmissions/check/:submission_id/:user_id', findVoteSub);
 routeAPI.delete('/votesubmissions/:submission_id/:user_id', deleteVoteSubmission);
+routeAPI.get('/sumvoteSub/:topic_id', sumvoteSub);
 module.exports=routeAPI;

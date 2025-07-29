@@ -1,18 +1,9 @@
 const axios = require('axios');
 const FormData = require('form-data');
-const leoProfanity = require("leo-profanity");
 const { success } = require('../utils/response.util');
 const AppError = require('../utils/AppError');
-leoProfanity.add([
-  "địt", "đụ", "lồn", "buồi", "cặc", "cứt", "chym", "chịch", "nứng", "bú", "liếm", "bú lol", "bú lồn", "thẩm du",
-  "quay tay", "thủ dâm", "dâm đãng", "lõa lồ", "dâm dục", "hiếp", "hiếp dâm", "vãi", "vl", "vcl", "dm", "đm", "dmm",
-  "đmm", "mẹ mày", "mày chết", "mẹ kiếp", "đồ chó", "thằng chó", "con chó", "mẹ cha", "thằng ngu", "con ngu", "óc chó", "óc lợn", "đần độn",
-  "fuck", "shit", "bitch", "bastard", "dick", "pussy", "slut", "asshole", "fucking", "motherfucker"
-]);
+const { isProfane } = require('../middlewares/validate.middleware');
 
-const isProfane = (text) => {
-  return leoProfanity.check(text.toLowerCase());
-};
 
 const postsubmission = async (req, res, next) => {
   try {
@@ -22,11 +13,14 @@ const postsubmission = async (req, res, next) => {
     if (isProfane(title)) {
       return res.status(400).json(success(null, "Tiêu đề chứa từ ngữ không phù hợp!"));
     }
-    // Lấy topic đã vote của user
     let votetopic;
-    const resVote = await axios.get(`http://interaction-service:3006/api/interaction/votetopics/user/${user_id}`);
-    votetopic = resVote.data?.data;
-
+    try {
+      const resVote = await axios.get(`http://interaction-service:3006/api/interaction/votetopics/user/${user_id}`);
+      votetopic = resVote.data?.data;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Lỗi không xác định khi gọi votetopics";
+      return res.status(500).json(success(null, errorMessage));
+    }
     const topic_id = votetopic?._id;
     if (!topic_id) {
       return res.status(400).json(success(null, "Bạn chưa vote cho chủ đề này!"));
@@ -129,10 +123,10 @@ const deletesubmission = async (req, res, next) => {
 };
 const getPostCountByDateRange = async (req, res, next) => {
   try {
-    const response = await axios.post(`http://submission-service:3005/api/submission/sub-count-by-date`,req.body);
+    const response = await axios.post(`http://submission-service:3005/api/submission/sub-count-by-date`, req.body);
     return res.status(200).json(response.data);
   } catch (error) {
     next(error)
   }
 };
-module.exports = {getPostCountByDateRange,isProfane, postsubmission, getsubmission, FindsubTopic, deletesubmission };
+module.exports = { getPostCountByDateRange, isProfane, postsubmission, getsubmission, FindsubTopic, deletesubmission };

@@ -1,12 +1,14 @@
 const express = require("express");
 const routeAPI=express.Router();
-const { topranking, sumtopranking, FindTopic_sub, Topranking_New, deleteSub }=require("../controllers/topranking.controller");
-const { withdramwUser, findUserScore } = require("../controllers/userScore.controller");
+const { topranking, FindTopic_sub, Topranking_New, deleteSub, checktopranking, sumtotal_score }=require("../controllers/topranking.controller");
+const { withdramwUser, findUserScore, sumtopranking } = require("../controllers/userScore.controller");
 routeAPI.get('/',topranking);
 routeAPI.get('/toprank',sumtopranking);
 routeAPI.get('/topranking-topic/:topic_id', FindTopic_sub);
 routeAPI.get('/new-user-topranking',Topranking_New);
 routeAPI.delete('/:submission_id',deleteSub);
 routeAPI.put('/withdramwUser',withdramwUser);
+routeAPI.get('/sumtotalscore/:topic_id',sumtotal_score);
 routeAPI.get('/findUserScore/:id',findUserScore);
+routeAPI.get('/checktopranking/:id',checktopranking);
 module.exports=routeAPI;

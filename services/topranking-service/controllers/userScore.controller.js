@@ -1,5 +1,5 @@
 
-const { handlefindUserScore, handlewithdramwUser } = require("../services/userScore.services");
+const { handlefindUserScore, handlewithdramwUser, handleSumTopRanking } = require("../services/userScore.services");
 const { success } = require("../utils/response.util");
 
 const withdramwUser = async (req, res, next) => {
@@ -18,4 +18,12 @@ const findUserScore = async (req, res, next) => {
         next(error);
     }
 }
-module.exports = { withdramwUser, findUserScore }
+const sumtopranking = async (req, res, next) => {
+    try {
+        const data = await handleSumTopRanking();
+        return res.status(200).json(success(data, "Lấy topranking thành công!"));
+    } catch (error) {
+        next(error);
+    }
+}
+module.exports = {sumtopranking, withdramwUser, findUserScore }

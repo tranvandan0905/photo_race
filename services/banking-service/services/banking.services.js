@@ -1,7 +1,6 @@
 const axios = require("axios");
 const DepositRequest = require("../models/depositRequest.model");
 const WithdrawRequest = require("../models/withdrawRequest.model");
-// Gọi API cập nhật xu cho user
 const updateXu = async (userId, data) => {
   const { amount, check } = data;
 
@@ -25,14 +24,62 @@ const handlegetWithdrawRequest = async (user_id) => {
   return data;
 }
 const handlegetALLDepositRequest = async () => {
-  const data = await DepositRequest.find({});
-  return data;
-}
+  try {
+    const data = await DepositRequest.find({});
+
+    const result = await Promise.all(
+      data.map(async (post) => {
+        try {
+          const userRes = await axios.get(`http://user-service:3003/api/user/findID/${post.user_id}`);
+          const user = userRes.data?.data;
+          return {
+            ...post._doc,
+            user,
+          };
+        } catch (err) {
+          return {
+            ...post._doc,
+            user: null,
+          };
+        }
+      })
+    );
+
+    return result;
+  } catch (err) {
+    return [];
+  }
+};
+
 const handlegetALLWithdrawRequest = async () => {
-  const data = await WithdrawRequest.find({});
-  return data;
+  
+
+   try {
+ const data = await WithdrawRequest.find({});
+
+    const result = await Promise.all(
+      data.map(async (post) => {
+        try {
+          const userRes = await axios.get(`http://user-service:3003/api/user/findID/${post.user_id}`);
+          const user = userRes.data?.data;
+          return {
+            ...post._doc,
+            user,
+          };
+        } catch (err) {
+          return {
+            ...post._doc,
+            user: null,
+          };
+        }
+      })
+    );
+
+    return result;
+  } catch (err) {
+    return [];
+  }
 }
-// Nạp tiền thành công → tạo DepositRequest + cộng xu
 const handlePostDepositRequest = async (data) => {
   const { user_id, amount } = data;
   if (!user_id || !amount) {
@@ -40,7 +87,6 @@ const handlePostDepositRequest = async (data) => {
   }
   const check = "DepositRequest";
   const newdata = { amount, check }
-  // Gọi API để lấy danh sách topranking
   const response = await updateXu(user_id, newdata);
   const result = await DepositRequest.create({ user_id, amount, status: "success" });
   if (!result) throw new Error("Không thể tạo yêu cầu nạp tiền!");
@@ -50,8 +96,6 @@ const handlePostWithdrawRequest = async (data) => {
   const { user_id, totalScore, password } = data;
   const amount = totalScore;
   try {
-
-    // Gọi API kiểm tra mật khẩu
     const checkpass = await axios.get(`http://user-service:3003/api/user/checkpass`, {
       params: { user_id, password }
     });
@@ -59,9 +103,6 @@ const handlePostWithdrawRequest = async (data) => {
     if (checkpass.data.errorCode === 1) {
       throw new Error(checkpass.data.message || "Sai mật khẩu giao dịch");
     }
-
-
-    // Gọi API để trừ điểm từ hệ thống topranking
     const response = await axios.put(`http://topranking-service:3007/api/topranking/withdramwUser`, data);
 
     if (response.data.errorCode === 0) {
@@ -74,7 +115,7 @@ const handlePostWithdrawRequest = async (data) => {
   } catch (error) {
     const errorMessage = error.response?.data?.message || error.message || "Không thể xử lý yêu cầu rút tiền";
 
-  
+
 
     throw new Error(errorMessage);
   }
@@ -96,8 +137,8 @@ const handegetPostWithdrawRequestCountByDateRange = async (data) => {
     },
     {
       $group: {
-        _id: "$status", // Nhóm theo status
-        totalAmount: { $sum: "$totalScore" }, // Tổng tiền theo trạng thái
+        _id: "$status",
+        totalAmount: { $sum: "$amount" }, // Tổng tiền theo trạng thái
         count: { $sum: 1 } // Số lượng đơn theo trạng thái
       }
     }

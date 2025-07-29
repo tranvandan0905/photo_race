@@ -5,6 +5,7 @@ const { getuser, postuser, deleteduser, updateuser, FindIDuser, findUser,
     updateXU, emailpassword, verifyForgotPassword,
     getPostUserCountByDateRange} = require("../controllers/user.controller");
 const { findbankacc, postbankacc, updatebankacc, checkpass } = require("../controllers/bankAccount.comtroller");
+const { postfrindship, updatefriendship, getfriendship } = require("../controllers/friendship.comtroller");
 routeAPI.get('/', getuser);
 routeAPI.get('/checkpass',checkpass);
 routeAPI.post('/', postuser);
@@ -25,4 +26,8 @@ routeAPI.post('/user-count-by-date', getPostUserCountByDateRange);
 routeAPI.get('/bankAcc/:id', findbankacc);
 routeAPI.post('/bankAcc', postbankacc);
 routeAPI.put('/bankAcc',updatebankacc );
+//friendship
+routeAPI.post('/friendship',postfrindship);
+routeAPI.put('/friendship/:id',updatefriendship );
+routeAPI.get('/friendship/:id/:check',getfriendship);
 module.exports = routeAPI;

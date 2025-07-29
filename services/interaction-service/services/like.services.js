@@ -45,4 +45,5 @@ const handefindlike = async (submission_id, user_id) => {
 const deletelikeMany = async (submission_id) => {
     return await like.deleteMany({ submission_id });
 }
+
 module.exports = { handleGetSumLike, handePostlike, handeDeletelike, handefindlike ,deletelikeMany};

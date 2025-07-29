@@ -1,7 +1,8 @@
 const topic = require("../models/topic.model");
 const AppError = require("../utils/AppError");
 const handeGetTopic = async () => {
-    const data = await topic.find({});
+
+    const data = await topic.find({}).sort({ end_time: -1 });
     return data;
 };
 const handePostTopic = async (data) => {

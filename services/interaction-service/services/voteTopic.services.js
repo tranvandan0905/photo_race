@@ -90,8 +90,13 @@ const handeDeleteVoteTopic = async (topic_id, user_id) => {
 
     return data;
 };
+const handesumvotetopic = async (topic_id) => {
+  const allVotes = await voteTopic.countDocuments({topic_id}); 
+  return allVotes;
+}
 
 module.exports = {
+    handesumvotetopic,
     handepostVoteTopic,
     handeDeleteVoteTopic,
     handefindcheckvoteTopicUser

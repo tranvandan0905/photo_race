@@ -5,9 +5,9 @@ const topranking = async (req, res,next) => {
     const {ranklike, rankcommnet, rankvote}= req.query;
     const response = await axios.get('http://topranking-service:3007/api/topranking',{
       params: {
-        ranklike: Number(ranklike ?? 1),
-        rankcommnet: Number(rankcommnet ?? 2),
-        rankvote: Number(rankvote ?? 5),
+        ranklike: (ranklike ?? 1),
+        rankcommnet: (rankcommnet ?? 2),
+        rankvote: (rankvote ?? 5),
       }});
     return res.status(200).json(response.data);
   } catch (error) {
@@ -25,6 +25,14 @@ const sumtopranking = async(req,res,next)=>{
 const FindTopic_sub = async(req,res,next)=>{
      try {
     const response = await axios.get(`http://topranking-service:3007/api/topranking/topranking-topic/${req.params.topic_id}`);
+    return res.status(200).json(response.data);
+  } catch (error) {
+     next(error);
+  }
+};
+const sumtotal_score = async(req,res,next)=>{
+     try {
+    const response = await axios.get(`http://topranking-service:3007/api/topranking/sumtotalscore/${req.params.topic_id}`);
     return res.status(200).json(response.data);
   } catch (error) {
      next(error);
@@ -48,5 +56,5 @@ const findUserScore = async(req,res,next)=>{
   }
 };
 module.exports={
-    sumtopranking,topranking,FindTopic_sub,Topranking_New,findUserScore
+    sumtopranking,topranking,FindTopic_sub,Topranking_New,findUserScore,sumtotal_score
 }

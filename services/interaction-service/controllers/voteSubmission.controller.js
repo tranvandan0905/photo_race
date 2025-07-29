@@ -1,4 +1,4 @@
-const { handepostVoteSubmission, handeDeleteVoteSubmission, handleGetSumVoteSubmission, handefindVoteSub } = require("../services/voteSubmission.services");
+const { handepostVoteSubmission, handeDeleteVoteSubmission, handleGetSumVoteSubmission, handefindVoteSub, handesumvotesub } = require("../services/voteSubmission.services");
 
 module.exports = {
     postVoteSubmission: async (req, res) => {
@@ -47,21 +47,36 @@ module.exports = {
             });
         }
     },
-   findVoteSub: async (req, res) => {
-    try {
-        const { submission_id, user_id } = req.params;
-        const result = await handefindVoteSub(submission_id, user_id);
+    findVoteSub: async (req, res) => {
+        try {
+            const { submission_id, user_id } = req.params;
+            const result = await handefindVoteSub(submission_id, user_id);
             return res.status(200).json({
-                
+
                 check: result,
             });
-    } catch (error) {
-        return res.status(500).json({
-          
-            check: false,
-            message: error.message || "Có lỗi xảy ra!",
-        });
+        } catch (error) {
+            return res.status(500).json({
+
+                check: false,
+                message: error.message || "Có lỗi xảy ra!",
+            });
+        }
+    },
+    sumvoteSub: async (req, res) => {
+        try {
+            const { topic_id } = req.params;
+            const data = await handesumvotesub(topic_id);
+            return res.status(200).json({
+                data: data,
+                message: "Lấy Tổng VoteSub thành công!",
+            });
+        } catch (error) {
+            return res.status(400).json({
+                data: [],
+                message: error.message || 'Có lỗi xảy ra!',
+            });
+        }
     }
-}
 
  }

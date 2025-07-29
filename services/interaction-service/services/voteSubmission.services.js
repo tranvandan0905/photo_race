@@ -11,23 +11,17 @@ const isInVoteTime = (topic) => {
     return now > start && now < end;
 };
 const handleGetSumVoteSubmission = async (submission_id) => {
- 
+
 
     const totalLikes = await VoteSubmission.countDocuments({ submission_id });
     return totalLikes;
 };
 const handepostVoteSubmission = async (submission_id, user_id) => {
-   
+
     const existingVote = await VoteSubmission.findOne({ submission_id, user_id });
     if (existingVote) {
         throw new Error("Bạn đã Vote Submission!");
     }
-
-    // const lastTopic = await getLastTopic();
-    // if (!isInVoteTime(lastTopic)) {
-    //     throw new Error("Bạn không thể Vote vì nằm ngoài thời gian cho phép!");
-    // }
-
     try {
         const response = await axios.patch(`http://user-service:3003/api/user/vote/${user_id}`);
         if (response?.data?.check === false) {
@@ -38,7 +32,7 @@ const handepostVoteSubmission = async (submission_id, user_id) => {
         throw new Error(message);
     }
     const data = await VoteSubmission.create({ submission_id, user_id });
-     const Sumvote = await VoteSubmission.countDocuments({ submission_id });
+    const Sumvote = await VoteSubmission.countDocuments({ submission_id });
     return {
         isVoted: true,
         VoteCount: Sumvote,
@@ -48,7 +42,7 @@ const handepostVoteSubmission = async (submission_id, user_id) => {
 
 // Xóa vote
 const handeDeleteVoteSubmission = async (submission_id, user_id) => {
-   
+
 
     const existingVote = await VoteSubmission.findOne({ submission_id, user_id });
     if (!existingVote) {
@@ -70,7 +64,7 @@ const handeDeleteVoteSubmission = async (submission_id, user_id) => {
     }
 
     const data = await VoteSubmission.findOneAndDelete({ submission_id, user_id });
-        const Sumvote = await VoteSubmission.countDocuments({ submission_id });
+    const Sumvote = await VoteSubmission.countDocuments({ submission_id });
     if (!data) {
         throw new Error("VoteSubmission không tồn tại!");
     }
@@ -82,10 +76,9 @@ const handeDeleteVoteSubmission = async (submission_id, user_id) => {
     };
 };
 const handefindVoteSub = async (submission_id, user_id) => {
- 
-       if(!user_id)
-    {
-         return false;
+
+    if (!user_id) {
+        return false;
     }
     const result = await VoteSubmission.findOne({ submission_id, user_id });
     if (result) {
@@ -93,6 +86,28 @@ const handefindVoteSub = async (submission_id, user_id) => {
     }
     return false;
 }
+
+const handesumvotesub = async (topic_id) => {
+    try {
+        const response = await axios.get(
+            `http://submission-service:3005/api/submission/FindsubmissionTopic/${topic_id}`
+        );
+        const submissions = response.data?.data || [];
+        const voteCounts = await Promise.all(
+            submissions.map(async (post) => {
+                const count = await VoteSubmission.countDocuments({ submission_id: post._id });
+                return count;
+            })
+        );
+        const totalVotes = voteCounts.reduce((sum, count) => sum + count, 0);
+
+        return totalVotes;
+
+    } catch (error) {
+        return 0;
+    }
+};
+
 module.exports = {
-    handeDeleteVoteSubmission, handepostVoteSubmission, handleGetSumVoteSubmission, handefindVoteSub
+    handesumvotesub, handeDeleteVoteSubmission, handepostVoteSubmission, handleGetSumVoteSubmission, handefindVoteSub
 };

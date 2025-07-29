@@ -2,17 +2,22 @@ const express = require("express");
 const routeAPI = express.Router();
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-const { authenticateToken, authenticateTokenAds, authenticateTokenAdmin } = require('../controllers/middleware.getway');
+const { authenticateToken, authenticateTokenAds, authenticateTokenAdmin } = require('../middlewares/middleware.getway');
 const { postsubmission, getsubmission, FindsubTopic, deletesubmission, getPostCountByDateRange } = require('../controllers/submission.getway');
 const { getTopic, postTopic, updateTopic, deleteTopic, findTopic } = require("../controllers/topic.getway");
 const { getUser, findUser, deleteUser, updateUser, findUserById, patchVoteXu, postUser, findNameUser,
     updateAvataUser, resetpassword, verifyForgotPassword,
-    getPostUserCountByDateRange } = require("../controllers/user.gateway");
+    getPostUserCountByDateRange, 
+    postfrindship,
+    updatefriendship,
+    getfriendship} = require("../controllers/user.gateway");
 const { findcheckvoteTopicUser, postVoteTopic, deleteVoteTopic, getcomment, postcomment, deletecomment,
     patchcomment, getsumlike, postlike, deletelike, findlike, postVoteSubmission,
-    deleteVoteSubmission, findVoteSub } = require("../controllers/interaction.getway");
+    deleteVoteSubmission, findVoteSub, 
+    sumvoteSub,
+    sumvotetopic} = require("../controllers/interaction.getway");
 const { login, register, loginAds, registerAds } = require("../controllers/auth.getway");
-const { topranking, sumtopranking, FindTopic_sub, Topranking_New, findUserScore } = require("../controllers/topranking.gatway");
+const { topranking, sumtopranking, FindTopic_sub, Topranking_New, findUserScore, sumtotal_score } = require("../controllers/topranking.gatway");
 const { PostAdvertiser, GetAdvertisers, DeleteAdvertiser, GetAds, GetAdsByAdvertiser,
     GetActiveAds, UpdateAds, Updateadver, FindverID, GetPaymentByAdvertiser,
     GetAdsByAdvertiserAdmin,
@@ -38,6 +43,10 @@ routeAPI.post('/topic', validatecreatetopic, authenticateTokenAdmin, postTopic);
 routeAPI.delete('/topic/:id', validateID, authenticateTokenAdmin, deleteTopic);
 routeAPI.put('/topic/:id', validateID, authenticateTokenAdmin, updateTopic)
 routeAPI.get('/topic/find', validatefindTopic, findTopic);
+//  friendship
+routeAPI.get('/friendship/find/:check',authenticateToken,getfriendship);
+routeAPI.get('/friendship/:id', authenticateToken, postfrindship);
+routeAPI.put('/friendship/:id', authenticateToken, updatefriendship);
 // User
 routeAPI.get('/user', authenticateTokenAdmin, getUser);
 routeAPI.post('/user', validatecreateUser, postUser);
@@ -55,7 +64,7 @@ routeAPI.post('/verify-password', verifyForgotPassword);
 routeAPI.get('/votetopics/user/:id', findcheckvoteTopicUser);
 routeAPI.post('/votetopics', authenticateToken, postVoteTopic);
 routeAPI.delete('/votetopics/:topic_id/:user_id', authenticateTokenAdmin, deleteVoteTopic);
-
+routeAPI.get('/sumvotetopic/:topic_id', sumvotetopic);
 // Comments
 routeAPI.get('/submissions/:id/comments', getcomment);
 routeAPI.post('/comments', authenticateToken, postcomment);
@@ -71,12 +80,14 @@ routeAPI.get('/likes/check/:submission_id', authenticateToken, findlike);
 routeAPI.post('/votesubmissions', authenticateToken, postVoteSubmission);
 routeAPI.delete('/votesubmissions/:submission_id', authenticateToken, deleteVoteSubmission);
 routeAPI.get('/votesubmissions/check/:submission_id', authenticateToken, findVoteSub);
+routeAPI.get('/sumvoteSub/:topic_id', sumvoteSub);
 //Topranking
-routeAPI.get('/topranking', authenticateTokenAdmin, topranking);
+routeAPI.get('/topranking', topranking);
 routeAPI.get('/topranking/toprank', sumtopranking);
 routeAPI.get('/topranking-topic/:topic_id', FindTopic_sub);
 routeAPI.get('/topranking/new-user-topranking', Topranking_New);
 routeAPI.get('/findUserScore', authenticateToken, findUserScore);
+routeAPI.get('/sumtotalscore/:topic_id',sumtotal_score);
 // ad
 //advertisers
 routeAPI.post('/advertisers', PostAdvertiser)

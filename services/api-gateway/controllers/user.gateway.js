@@ -1,6 +1,6 @@
 const axios = require('axios');
 const FormData = require('form-data');
-const getUser = async (req, res,next) => {
+const getUser = async (req, res, next) => {
   try {
 
     const { check } = req.query;
@@ -9,11 +9,11 @@ const getUser = async (req, res,next) => {
     });
     return res.status(200).json(response.data);
   } catch (error) {
-   next(error)
+    next(error)
   }
 };
 
-const findUser = async (req, res,next) => {
+const findUser = async (req, res, next) => {
   try {
     const { email } = req.query;
     const response = await axios.get("http://user-service:3003/api/user/find", {
@@ -21,11 +21,11 @@ const findUser = async (req, res,next) => {
     });
     return res.status(200).json(response.data);
   } catch (err) {
-     next(err)
+    next(err)
   }
 };
 
-const findNameUser = async (req, res,next) => {
+const findNameUser = async (req, res, next) => {
   try {
     const { name } = req.query;
     const response = await axios.get("http://user-service:3003/api/user/find/name", {
@@ -33,32 +33,32 @@ const findNameUser = async (req, res,next) => {
     });
     return res.status(200).json(response.data);
   } catch (err) {
-  next(err);
+    next(err);
   }
 };
-const deleteUser = async (req, res,next) => {
+const deleteUser = async (req, res, next) => {
   try {
-   const user_id = req.user.id;
-   const data= await axios.delete(`http://user-service:3003/api/user/${user_id}`);
+    const user_id = req.user.id;
+    const data = await axios.delete(`http://user-service:3003/api/user/${user_id}`);
     return res.status(200).json(data.data);
   } catch (err) {
-   next(err);
+    next(err);
 
   }
 };
 
-const updateUser = async (req, res,next) => {
+const updateUser = async (req, res, next) => {
   try {
     const user_id = req.user.id;
     const data = req.body;
     const result = await axios.put(`http://user-service:3003/api/user/${user_id}`, data);
     return res.status(200).json(result.data);
   } catch (err) {
-   next(err);
+    next(err);
   }
 };
 
-const findUserById = async (req, res,next) => {
+const findUserById = async (req, res, next) => {
   try {
     const user_id = req.query.id || req.user.id;
     const result = await axios.get(`http://user-service:3003/api/user/findID/${user_id}`);
@@ -67,7 +67,7 @@ const findUserById = async (req, res,next) => {
     next(err);
   }
 };
-const updateAvataUser = async (req, res,next) => {
+const updateAvataUser = async (req, res, next) => {
   try {
     const user_id = req.user.id;
     const image = req.file;
@@ -96,55 +96,89 @@ const updateAvataUser = async (req, res,next) => {
     );
 
   } catch (error) {
-     next(error);
+    next(error);
   }
 };
-const patchVoteXu = async (req, res,next) => {
+const patchVoteXu = async (req, res, next) => {
   try {
     const user_id = req.params.id;
     const result = await axios.patch(`http://user-service:3003/api/user/vote/${user_id}`);
     return res.status(200).json(result.data);
   } catch (err) {
-     next(err);
+    next(err);
   }
 };
 
-const postUser = async (req, res,next) => {
+const postUser = async (req, res, next) => {
   try {
     const { email, name, password } = req.body;
     const user = await axios.post(`http://user-service:3003/api/user`, { email, name, password });
     return res.status(200).json(user.data);
   } catch (err) {
-     next(err);
+    next(err);
   }
 };
-const resetpassword = async (req,res,next) => {
+const resetpassword = async (req, res, next) => {
   try {
-    const { email} = req.body;
-    const user = await axios.post(`http://user-service:3003/api/user/email-password`, { email});
+    const { email } = req.body;
+    const user = await axios.post(`http://user-service:3003/api/user/email-password`, { email });
     return res.status(200).json(user.data);
   } catch (err) {
     next(err);
   }
 };
-const verifyForgotPassword = async (req, res,next) => {
+const verifyForgotPassword = async (req, res, next) => {
   try {
-    const { token,pasword,email } = req.body;
-    const user = await axios.post(`http://user-service:3003/api/user/verify-password`, { token,pasword,email});
+    const { token, pasword, email } = req.body;
+    const user = await axios.post(`http://user-service:3003/api/user/verify-password`, { token, pasword, email });
     return res.status(200).json(user.data);
   } catch (err) {
-      next(err);
+    next(err);
   }
 };
 const getPostUserCountByDateRange = async (req, res, next) => {
   try {
-    const response = await axios.post(`http://user-service:3003/api/user/user-count-by-date`,req.body);
+    const response = await axios.post(`http://user-service:3003/api/user/user-count-by-date`, req.body);
     return res.status(200).json(response.data);
   } catch (error) {
     next(error)
   }
 };
+const postfrindship = async (req, res, next) => {
+  try {
+    const user_id_1 = req.user.id;
+    const user_id_2 = req.params.id;
+    const user = await axios.post(`http://user-service:3003/api/user/friendship`, { user_id_1, user_id_2 });
+    return res.status(200).json(user.data);
+  } catch (err) {
+    next(err);
+  }
+};
+const updatefriendship = async (req, res, next) => {
+  try {
+    const user_id_1 = req.user.id;
+    const { user_id_2, status } = req.body;
+    const _id = req.params.id;
+    const user = await axios.put(`http://user-service:3003/api/user/friendship/${_id}`, { user_id_1, user_id_2, status });
+    return res.status(200).json(user.data);
+  } catch (err) {
+    next(err);
+  }
+};
+const getfriendship = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+    const check = req.params.check;
+    const user = await axios.get(`http://user-service:3003/api/user/friendship/${id}/${check}`);
+    return res.status(200).json(user.data);
+  } catch (err) {
+    next(err);
+  }
+};
 module.exports = {
+  getfriendship,
+  postfrindship,
+  updatefriendship,
   getPostUserCountByDateRange,
   getUser,
   findUser,

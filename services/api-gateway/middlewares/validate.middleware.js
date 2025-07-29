@@ -76,4 +76,15 @@ const validatecreateSub = (req, res, next) => {
     }
     next();
 }
-module.exports = {validatecreateSub, validatefindTopic, validateEmail, validatefindNameUser, validateupdateAvataUser, validateID, validatecreateUser, validatecreatetopic };
+const leoProfanity = require("leo-profanity");
+leoProfanity.add([
+  "địt", "đụ", "lồn", "buồi", "cặc", "cứt", "chym", "chịch", "nứng", "bú", "liếm", "bú lol", "bú lồn", "thẩm du",
+  "quay tay", "thủ dâm", "dâm đãng", "lõa lồ", "dâm dục", "hiếp", "hiếp dâm", "vãi", "vl", "vcl", "dm", "đm", "dmm",
+  "đmm", "mẹ mày", "mày chết", "mẹ kiếp", "đồ chó", "thằng chó", "con chó", "mẹ cha", "thằng ngu", "con ngu", "óc chó", "óc lợn", "đần độn",
+  "fuck", "shit", "bitch", "bastard", "dick", "pussy", "slut", "asshole", "fucking", "motherfucker"
+]);
+
+const isProfane = (text) => {
+  return leoProfanity.check(text.toLowerCase());
+};
+module.exports = {isProfane,validatecreateSub, validatefindTopic, validateEmail, validatefindNameUser, validateupdateAvataUser, validateID, validatecreateUser, validatecreatetopic };

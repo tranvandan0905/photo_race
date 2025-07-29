@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { isProfane } = require('./submission.getway');
+const { isProfane } = require('../middlewares/validate.middleware');
 
 module.exports = {
     getcomment: async (req, res) => {
@@ -98,7 +98,28 @@ module.exports = {
             });
         }
     },
-
+    sumvoteSub: async (req, res) => {
+        try {
+            const topic_id = req.params.topic_id;
+            const response = await axios.get(`http://interaction-service:3006/api/interaction/sumvoteSub/${topic_id}`);
+            return res.status(200).json(response.data);
+        } catch (error) {
+            return res.status(500).json({
+                message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!"
+            });
+        }
+    },
+    sumvotetopic: async (req, res) => {
+        try {
+            const topic_id = req.params.topic_id;
+            const response = await axios.get(`http://interaction-service:3006/api/interaction/sumvotetopic/${topic_id}`);
+            return res.status(200).json(response.data);
+        } catch (error) {
+            return res.status(500).json({
+                message: error.response?.data?.message || error.message || "Có lỗi xảy ra khi gọi API!"
+            });
+        }
+    },
     postVoteTopic: async (req, res) => {
         try {
             const user_id = req.user.id;
@@ -189,7 +210,7 @@ module.exports = {
     findVoteSub: async (req, res) => {
         try {
             const user_id = req.user.id;
-        
+
 
             const { submission_id } = req.params;
             const checkvote = await axios.get(`http://interaction-service:3006/api/interaction/votesubmissions/check/${submission_id}/${user_id}`);
@@ -204,7 +225,7 @@ module.exports = {
     findlike: async (req, res) => {
         try {
             const user_id = req.user.id;
-       
+
 
             const { submission_id } = req.params;
             const checklike = await axios.get(`http://interaction-service:3006/api/interaction/likes/check/${submission_id}/${user_id}`);

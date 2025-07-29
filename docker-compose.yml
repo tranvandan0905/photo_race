@@ -82,3 +82,10 @@ services:
       dockerfile: docker/media-service.Dockerfile
     ports:
       - "5000:5000"
+  chat-service:
+    container_name: chat-service
+    build:
+      context: .
+      dockerfile: docker/chat-service.Dockerfile
+    ports:
+      - "3012:3012"

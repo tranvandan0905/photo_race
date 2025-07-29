@@ -1,13 +1,37 @@
 const axios = require('axios');
 
-const getTopic = async (req, res,next) => {
+const getTopic = async (req, res, next) => {
   try {
     const response = await axios.get('http://topic-service:3004/api/topic');
-    return res.status(200).json(response.data);
+    
+    const topic = await Promise.all(
+      response.data.data.map(async (topicItem) => {
+        try {
+          const userRes = await axios.get(
+            `http://topranking-service:3007/api/topranking/checktopranking/${topicItem._id}`
+          );
+          const tipiccheck = userRes.data?.data;
+               const hasData = Array.isArray(tipiccheck) && tipiccheck.length > 0;
+
+          return {
+            ...topicItem,
+            check: hasData, 
+          };
+        } catch (userErr) {
+          return {
+            ...topicItem,
+            check: false,
+          };
+        }
+      })
+    );
+
+    return res.status(200).json(topic);
   } catch (error) {
-   next(error);
+    next(error);
   }
 };
+
 
 const postTopic = async (req, res,next) => {
   try {
